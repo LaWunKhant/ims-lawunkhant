@@ -23,21 +23,7 @@ public class SampleController {
     	return "top/index";
     }
     
-    /**
-     * 商品マスタ
-     */
-    @GetMapping("/product")
-    public String productIndex() {
-    	return "product/index";
-    }
-    
-    /**
-     * 商品マスタ登録／変更
-     */
-    @GetMapping("/product/entry")
-    public String productEntry() {
-    	return "product/entry";
-    }
+   
     
     /**
      * 企業マスタ

@@ -1,54 +1,118 @@
 <html th:replace="~{layouts/base :: layout('商品マスタ登録／変更', ~{::main}, ~{::script})}">
 <main class="w-full flex flex-col flex-grow p-6">
-	<div class="w-1/2 mt-2 my-6">
-		<h2 class="text-xl pb-3 flex items-center"><i class="fas fa-list mr-3"></i>商品情報</h2>
-		<form th:action="@{/product/entry}" method="post" th:object="${product}" class="p-10 bg-white rounded shadow-xl"><!--/* Memo デモ用にGETを設置 システム導入時POSTに変更 method="post" */--><!--/* Memo 登録用 */-->
-			<!-- Hidden ID field for edit -->
-    		<input type="hidden" th:field="*{id}">
-			<div class="mt-2">
-				<label for="code" class="mt-2 ml-3 text-sm font-bold text-gray-700 tracking-wide">商品コード</label>
-				<input type="text" name="productCode" th:value="*{productCode}" value="" tabindex="1" placeholder="商品コードをご入力ください" id="code" class="w-full content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+    <div class="w-1/2 mt-2 my-6">
+        <h2 class="text-xl pb-3 flex items-center"><i class="fas fa-list mr-3"></i>商品情報</h2>
+
+        <form th:action="@{/product/entry}" method="post" th:object="${product}"
+              class="p-10 bg-white rounded-2xl shadow-xl">
+
+            <input type="hidden" th:field="*{id}">
+
+            <!-- 商品コード -->
+            <div class="mt-2">
+                <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">
+                    商品コード <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="productCode" th:value="*{productCode}"
+                       th:readonly="${product.id != null}"
+                       th:classappend="${product.id != null} ? 'bg-gray-100 cursor-not-allowed text-gray-500' : ''"
+                       placeholder="商品コードをご入力ください" tabindex="1"
+                       class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+                <p th:if="${#fields.hasErrors('productCode')}"
+				   th:errors="*{productCode}"
+				   style="color:red; font-size:0.75rem; margin-left:0.75rem; margin-top:0.25rem;">
+				</p>
+            </div>
+			
+			 <!-- 商品名（略） -->
+            <div class="mt-4">
+                <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">商品名（略）</label>
+                <input type="text" name="productNameShort" th:value="*{productNameShort}"
+                       placeholder="商品名（略）をご入力ください" tabindex="1"
+                       class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+                <p th:if="${#fields.hasErrors('productNameShort')}"
+				   th:errors="*{productNameShort}"
+				   style="color:red; font-size:0.75rem; margin-left:0.75rem; margin-top:0.25rem;"></p>
+            </div>
+            
+            <!-- 商品名 -->
+            <div class="mt-4">
+                <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">
+                    商品名 <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="productName" th:value="*{productName}"
+                       placeholder="商品名をご入力ください" tabindex="1"
+                       class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+                <p th:if="${#fields.hasErrors('productName')}"
+				   th:errors="*{productName}"
+				   style="color:red; font-size:0.75rem; margin-left:0.75rem; margin-top:0.25rem;">
+				</p>
+            </div>
+
+            <!-- 分類 -->
+            <div class="mt-4">
+                <label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">分類</label>
+                <select name="category" tabindex="1"
+                        class="w-1/3 text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+                    <option value="">選択してください</option>
+                    <option value="1" th:selected="*{category == 1}">分類1</option>
+                    <option value="2" th:selected="*{category == 2}">分類2</option>
+                </select>
+            </div>
+
+            <!-- 在庫数 (表示のみ) -->
+            <div class="mt-4">
+                <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">在庫数</label>
+                <input type="text" th:value="*{stock != null ? stock : 0}" disabled
+                       class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed">
+            </div>
+
+            <!-- 金額 -->
+            <div class="mt-4">
+                <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">
+                    金額 <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="price" th:value="*{price}"
+                       placeholder="金額をご入力ください" tabindex="1"
+                       class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+                <p th:if="${#fields.hasErrors('price')}"
+				   th:errors="*{price}"
+				   style="color:red; font-size:0.75rem; margin-left:0.75rem; margin-top:0.25rem;"></p>
+            </div>
+
+            <!-- ボタン -->
+            <div class="flex items-center justify-between mt-10">
+
+			    <!-- 戻る -->
+			    <a th:href="@{/product}"
+			       style="min-width:120px; background:#9ca3af; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer;">
+			        戻る
+			    </a>
+			
+			    <!-- 登録 or 更新 -->
+			    <button type="submit"
+			            th:text="${product.id != null} ? '更新' : '登録'"
+			            th:style="${product.id != null} ?
+			                'min-width:120px; background:#3b82f6; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer;' :
+			                'min-width:120px; background:green; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer;'">
+			    </button>
+			
+			    <!-- 削除: 編集時のみ -->
+			    <button th:if="${product.id != null}"
+				        type="submit" form="deleteForm"
+				        onclick="return confirm('本当に削除しますか？');"
+				        style="min-width:120px; background:red; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer;">
+				    削除
+				</button>
+			
 			</div>
-			<div class="mt-2">
-				<label for="name" class="ml-3 text-sm font-bold text-gray-700 tracking-wide">商品名</label>
-				<input type="text" name="productName" th:value="*{productName}" value="" tabindex="1" placeholder="商品名をご入力ください" id="name" class="w-full content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
-			</div>
-			<div class="mt-2">
-				<label for="product" class="ml-3 text-sm font-bold text-gray-700 tracking-wide">商品名（略）</label>
-				<input type="text" name="productNameShort" th:value="*{productNameShort}" value="" tabindex="1" placeholder="商品名（略）をご入力ください" id="product" class="w-full content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
-			</div>
-			<div class="mt-4">
-				<label for="classification" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">分類</label>
-				<select name="category" id="classification" tabindex="1" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
-					<option value="">選択してください</option>
-					<option value="分類1" th:selected="*{category == '分類1'}">分類1</option>
-					<option value="分類2" th:selected="*{category == '分類2'}">分類2</option>
-				</select>
-			</div>
-			<div class="mt-2">
-				<label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">在庫数</label>
-				<input type="text" name="stock" th:value="*{stock}" value="0" class="w-full content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
-			</div>
-			<div class="mt-2">
-				<label for="money" class="ml-3 text-sm font-bold text-gray-700 tracking-wide">金額</label>
-				<input type="text" name="price" th:value="*{price}" value="" tabindex="1" placeholder="金額をご入力ください" id="money" class="w-full content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
-			</div>
-			<div class="flex flex-wrap mt-10">
-				<div class="w-52 pr-5 mt-auto">
-					<a th:href="@{/product}" tabindex="1" class="w-full flex justify-center bg-gradient-to-r from-gray-400 to-gray-500 hover:bg-gradient-to-l hover:from-gray-400 hover:to-gray-500 text-gray-100 p-2 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500">戻る</a>
-				</div>
-				<div class="w-56 pr-2 mt-auto">
-					<button type="submit" name="entry" tabindex="1" class="w-full flex justify-center bg-gradient-to-r from-red-500 to-red-600 hover:bg-gradient-to-l hover:from-red-500 hover:to-red-600 text-gray-100 p-2 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500">登録</button>
-				</div>
-				<div class="w-56 mt-auto">
-					<button type="submit" name="delete" tabindex="1" form="delete" class="w-full flex justify-center bg-gradient-to-r from-gray-600 to-gray-700 hover:bg-gradient-to-l hover:from-gray-600 hover:to-gray-700 text-gray-100 p-2 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500">削除</button><!--/* Memo form属性でformタグのIDを指定することで紐づけ */-->
-				</div>
-			</div>
-		</form>
-		<form id="delete" th:action="@{/product/delete/{id}(id=${product.id})}" method="post">
-		    <input type="hidden" name="_method" value="delete">
-		</form><!--/* Memo 削除用 */-->
-	</div>
+        </form>
+
+        <!-- 削除フォーム -->
+        <form th:if="${product.id != null}" id="deleteForm"
+              th:action="@{/product/delete/{id}(id=${product.id})}" method="post">
+        </form>
+    </div>
 </main>
 <script></script>
 </html>

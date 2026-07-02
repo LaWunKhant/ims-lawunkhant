@@ -39,4 +39,14 @@ public class ProductService {
     public void deleteById(Integer id) {
         productRepository.deleteById(id);
     }
+    
+    public List<Product> search(String strCode, String endCode, String productName, Integer category) {
+        List<Product> all = productRepository.findAll();
+        return all.stream()
+            .filter(p -> (strCode == null || strCode.isEmpty() || p.getProductCode().compareTo(strCode) >= 0))
+            .filter(p -> (endCode == null || endCode.isEmpty() || p.getProductCode().compareTo(endCode) <= 0))
+            .filter(p -> (productName == null || productName.isEmpty() || p.getProductName().contains(productName)))
+            .filter(p -> (category == null || category.equals(p.getCategory())))
+            .collect(java.util.stream.Collectors.toList());
+    }
 }

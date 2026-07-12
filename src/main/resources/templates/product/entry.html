@@ -7,6 +7,12 @@
               class="p-10 bg-white rounded-2xl shadow-xl">
 
             <input type="hidden" th:field="*{id}">
+            
+            <!-- Error message for duplicate code -->
+		    <div th:if="${errorMessage}"
+		         style="background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:12px 20px; border-radius:8px; margin-bottom:16px; font-weight:bold;">
+		        ⚠️ <span th:text="${errorMessage}"></span>
+		    </div>
 
             <!-- 商品コード -->
             <div class="mt-2">

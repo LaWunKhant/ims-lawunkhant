@@ -65,20 +65,28 @@ public class ProductController {
         if (result.hasErrors()) {
             return "product/entry";
         }
-        boolean isNew = product.getId() == null;
-        if (isNew) {
-            product.setStock(0);
-            product.setCreatedMemberId(1);
-        }
-        product.setUpdateMemberId(1);
-        productService.save(product);
+        
+        try {
+            boolean isNew = product.getId() == null;
+            if (isNew) {
+                product.setStock(0);
+                product.setCreatedMemberId(1);
+            }
+            product.setUpdateMemberId(1);
+            productService.save(product);
 
-        if (isNew) {
-            redirectAttributes.addFlashAttribute("successMessage", "商品を新規登録しました。");
-        } else {
-            redirectAttributes.addFlashAttribute("successMessage", "商品情報を更新しました。");
+            if (isNew) {
+                redirectAttributes.addFlashAttribute("successMessage", "商品を新規登録しました。");
+            } else {
+                redirectAttributes.addFlashAttribute("successMessage", "商品情報を更新しました。");
+            }
+            return "redirect:/product";
+
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // duplicate product_code
+            model.addAttribute("errorMessage", "この商品コードはすでに登録されています。別のコードを入力してください。");
+            return "product/entry";
         }
-        return "redirect:/product";
     }
 
     /**

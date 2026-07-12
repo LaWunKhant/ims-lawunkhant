@@ -29,21 +29,6 @@ public class SampleController {
         return "top/index";
     }
     
-    /**
-     * 企業マスタ
-     */
-    @GetMapping("/supplier")
-    public String supplierIndex() {
-    	return "supplier/index";
-    }
-    
-    /**
-     * 企業マスタ登録／変更
-     */
-    @GetMapping("/supplier/entry")
-    public String supplierEntry() {
-    	return "supplier/entry";
-    }
     
     /**
      * 受注管理

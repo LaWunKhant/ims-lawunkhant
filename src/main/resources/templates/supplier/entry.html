@@ -48,6 +48,10 @@
                 <input type="text" name="tel" th:value="*{tel}"
                        placeholder="電話番号をご入力ください" tabindex="1"
                        class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+                       
+                 <p th:if="${#fields.hasErrors('tel')}"
+					   th:errors="*{tel}"
+					   style="color:red; font-size:0.75rem; margin-left:0.75rem; margin-top:0.25rem;"></p>
             </div>
 
             <!-- メール -->
@@ -56,6 +60,10 @@
                 <input type="text" name="email" th:value="*{email}"
                        placeholder="メールアドレスをご入力ください" tabindex="1"
                        class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+                 
+                 <p th:if="${#fields.hasErrors('email')}"
+					   th:errors="*{email}"
+					   style="color:red; font-size:0.75rem; margin-left:0.75rem; margin-top:0.25rem;"></p>
             </div>
 
             <!-- 郵便番号 -->
@@ -64,6 +72,11 @@
                 <input type="text" name="postalCode" th:value="*{postalCode}"
                        placeholder="郵便番号をご入力ください" tabindex="1"
                        class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+                       
+                 <p th:if="${#fields.hasErrors('postalCode')}"
+					   th:errors="*{postalCode}"
+					   style="color:red; font-size:0.75rem; margin-left:0.75rem; margin-top:0.25rem;"></p>
+                 
             </div>
 
             <!-- 住所 -->

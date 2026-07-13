@@ -27,6 +27,19 @@ public class CompanyController {
             @RequestParam(required = false) String tel,
             Model model) {
 
+        // ① validate code format - numbers only
+        if (str_code != null && !str_code.isEmpty() && !str_code.matches("[0-9]+")) {
+            model.addAttribute("errorMessage", "企業コードは数字で入力してください。");
+            model.addAttribute("companies", List.of());
+            return "supplier/index";
+        }
+        if (end_code != null && !end_code.isEmpty() && !end_code.matches("[0-9]+")) {
+            model.addAttribute("errorMessage", "企業コードは数字で入力してください。");
+            model.addAttribute("companies", List.of());
+            return "supplier/index";
+        }
+
+        // ② validate range order
         if (str_code != null && !str_code.isEmpty()
                 && end_code != null && !end_code.isEmpty()
                 && str_code.compareTo(end_code) > 0) {
@@ -38,12 +51,6 @@ public class CompanyController {
         List<Company> companies = companyService.search(str_code, end_code, companyName, tel);
         model.addAttribute("companies", companies);
         return "supplier/index";
-    }
-
-    @GetMapping("/entry")
-    public String entry(Model model) {
-        model.addAttribute("company", new Company());
-        return "supplier/entry";
     }
 
     @PostMapping("/entry")

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 
 @Entity
 @Data
@@ -25,12 +27,15 @@ public class Company {
     private String companyName;
 
     @Column(name = "tel", length = 15)
+    @Pattern(regexp = "^[0-9\\-]*$", message = "電話番号は半角数字とハイフン(-)区切りの形式で入力してください")
     private String tel;
 
     @Column(name = "email", length = 100)
+    @Email(message = "メールアドレスの形式で入力してください")
     private String email;
 
     @Column(name = "postal_code", length = 8)
+    @Pattern(regexp = "^[0-9]{3}-[0-9]{4}$", message = "郵便番号は000-0000の形式で入力してください")
     private String postalCode;
 
     @Column(name = "address", length = 200)

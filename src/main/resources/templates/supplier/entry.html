@@ -4,7 +4,7 @@
         <h2 class="text-xl pb-3 flex items-center"><i class="fas fa-list mr-3"></i>企業情報</h2>
 
         <form th:action="@{/supplier/entry}" method="post" th:object="${company}"
-              class="p-10 bg-white rounded-2xl shadow-xl">
+      			class="p-10 bg-white rounded-2xl shadow-xl">
 
             <input type="hidden" th:field="*{id}">
 
@@ -44,7 +44,9 @@
 
             <!-- TEL -->
             <div class="mt-4">
-                <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">TEL</label>
+                <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">
+				    TEL <span style="color:red">*</span>
+				</label>
                 <input type="text" name="tel" th:value="*{tel}"
                        placeholder="電話番号をご入力ください" tabindex="1"
                        class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
@@ -56,7 +58,9 @@
 
             <!-- メール -->
             <div class="mt-4">
-                <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">メール</label>
+                <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">
+				    メール <span style="color:red">*</span>
+				</label>
                 <input type="text" name="email" th:value="*{email}"
                        placeholder="メールアドレスをご入力ください" tabindex="1"
                        class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
@@ -67,25 +71,32 @@
             </div>
 
             <!-- 郵便番号 -->
-            <div class="mt-4 w-1/3">
-                <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">郵便番号</label>
+            <div class="mt-4">
+                <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">
+				    郵便番号 <span style="color:red">*</span>
+				</label>
                 <input type="text" name="postalCode" th:value="*{postalCode}"
                        placeholder="郵便番号をご入力ください" tabindex="1"
                        class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
                        
                  <p th:if="${#fields.hasErrors('postalCode')}"
-					   th:errors="*{postalCode}"
+					   th:text="${#fields.errors('postalCode')[0]}"
 					   style="color:red; font-size:0.75rem; margin-left:0.75rem; margin-top:0.25rem;"></p>
                  
             </div>
 
-            <!-- 住所 -->
-            <div class="mt-4">
-                <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">住所</label>
-                <input type="text" name="address" th:value="*{address}"
-                       placeholder="住所をご入力ください" tabindex="1"
-                       class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
-            </div>
+           <!-- 住所 -->
+			<div class="mt-4">
+			    <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide">
+			        住所 <span style="color:red">*</span>
+			    </label>
+			    <input type="text" name="address" th:value="*{address}"
+			           placeholder="住所をご入力ください" tabindex="1"
+			           class="w-full text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+			    <p th:if="${#fields.hasErrors('address')}"
+			       th:text="${#fields.errors('address')[0]}"
+			       style="color:red; font-size:0.75rem; margin-left:0.75rem; margin-top:0.25rem;"></p>
+			</div>
 
             <!-- 備考 -->
             <div class="mt-4">

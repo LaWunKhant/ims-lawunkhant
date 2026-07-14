@@ -38,6 +38,12 @@ public class CompanyController {
             model.addAttribute("companies", List.of());
             return "supplier/index";
         }
+        
+        if (tel != null && !tel.isEmpty() && !tel.matches("[0-9\\-]+")) {
+            model.addAttribute("errorMessage", "電話番号は半角数字とハイフン(-)で入力してください。");
+            model.addAttribute("companies", List.of());
+            return "supplier/index";
+        }
 
         // ② validate range order
         if (str_code != null && !str_code.isEmpty()
@@ -51,6 +57,12 @@ public class CompanyController {
         List<Company> companies = companyService.search(str_code, end_code, companyName, tel);
         model.addAttribute("companies", companies);
         return "supplier/index";
+    }
+    
+    @GetMapping("/entry")
+    public String entry(Model model) {
+        model.addAttribute("company", new Company());
+        return "supplier/entry";
     }
 
     @PostMapping("/entry")

@@ -27,18 +27,22 @@ public class Company {
     private String companyName;
 
     @Column(name = "tel", length = 15)
+    @NotBlank(message = "電話番号は必須です")
     @Pattern(regexp = "^[0-9\\-]*$", message = "電話番号は半角数字とハイフン(-)区切りの形式で入力してください")
     private String tel;
 
     @Column(name = "email", length = 100)
+    @NotBlank(message = "メールアドレスは必須です")
     @Email(message = "メールアドレスの形式で入力してください")
     private String email;
 
     @Column(name = "postal_code", length = 8)
+    @NotBlank(message = "郵便番号は必須です")
     @Pattern(regexp = "^[0-9]{3}-[0-9]{4}$", message = "郵便番号は000-0000の形式で入力してください")
     private String postalCode;
 
     @Column(name = "address", length = 200)
+    @NotBlank(message = "住所は必須です")
     private String address;
 
     @Column(name = "remarks", columnDefinition = "TEXT")

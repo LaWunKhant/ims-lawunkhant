@@ -5,19 +5,12 @@
 		<form th:action="@{/receive/entry}" method="post" th:object="${order}" class="p-10 bg-white rounded shadow-xl">
 			<input type="hidden" th:field="*{id}">
 
-			<!-- Validation Errors -->
-			<div th:if="${#fields.hasErrors('*')}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-				<p class="font-semibold mb-2">エラーが発生しました</p>
-				<ul class="list-disc list-inside space-y-1">
-					<li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
-				</ul>
-			</div>
-
 			<!-- Company Selection -->
 			<div class="mt-4">
 				<label for="companyId" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">取引先<span class="text-red-600">*</span></label>
 				<select name="companyId" id="companyId" 
-						class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+						class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500"
+						th:classappend="${#fields.hasErrors('companyId')} ? 'border-red-500' : ''">
 					<option value="">選択してください</option>
 					<option th:each="company : ${companies}" 
 							th:value="${company.id}" 
@@ -25,20 +18,24 @@
 							th:selected="${order.companyId == company.id}">
 					</option>
 				</select>
+				<p th:if="${#fields.hasErrors('companyId')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{companyId}"></p>
 			</div>
 
 			<!-- Order Date -->
 			<div class="mt-2">
 				<label for="orderDate" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">受注日<span class="text-red-600">*</span></label>
 				<input type="date" name="orderDate" th:value="${#temporals.format(order.orderDate, 'yyyy-MM-dd')}" id="orderDate" 
-					   class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+					   class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500"
+					   th:classappend="${#fields.hasErrors('orderDate')} ? 'border-red-500' : ''">
+				<p th:if="${#fields.hasErrors('orderDate')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{orderDate}"></p>
 			</div>
 
 			<!-- Product Selection -->
 			<div class="mt-2">
 				<label for="productId" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">商品<span class="text-red-600">*</span></label>
 				<select name="productId" id="productId" 
-						class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+						class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500"
+						th:classappend="${#fields.hasErrors('productId')} ? 'border-red-500' : ''">
 					<option value="">選択してください</option>
 					<option th:each="product : ${products}"
 							th:value="${product.id}"
@@ -47,20 +44,25 @@
 							th:selected="${order.productId == product.id}">
 					</option>
 				</select>
+				<p th:if="${#fields.hasErrors('productId')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{productId}"></p>
 			</div>
 
 			<!-- Unit Price -->
 			<div class="mt-2">
 				<label class="mt-2 ml-3 text-sm font-bold text-gray-700 tracking-wide">単価</label>
 				<input type="text" name="unitPrice" th:field="*{unitPrice}" 
-					   class="w-full content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300" readonly>
+					   class="w-full content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300"
+					   th:classappend="${#fields.hasErrors('unitPrice')} ? 'border-red-500' : ''" readonly>
+				<p th:if="${#fields.hasErrors('unitPrice')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{unitPrice}"></p>
 			</div>
 
 			<!-- Quantity -->
 			<div class="mt-2">
 				<label for="quantity" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">商品受注数<span class="text-red-600">*</span></label>
 				<input type="number" name="quantity" th:field="*{quantity}" id="quantity" 
-					   class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+					   class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500"
+					   th:classappend="${#fields.hasErrors('quantity')} ? 'border-red-500' : ''">
+				<p th:if="${#fields.hasErrors('quantity')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{quantity}"></p>
 			</div>
 
 			<!-- Amount -->
@@ -83,6 +85,7 @@
 						<label for="taxFlag1" class="ml-2">課税</label>
 					</div>
 				</div>
+				<p th:if="${#fields.hasErrors('taxFlag')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{taxFlag}"></p>
 			</div>
 
 			<!-- Billing Amount -->

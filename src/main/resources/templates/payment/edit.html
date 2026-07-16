@@ -1,95 +1,92 @@
 <html th:replace="~{layouts/base :: layout('入金変更登録', ~{::main}, ~{::script})}">
 <main class="w-4/6 flex flex-col flex-grow p-6">
 	<h2 class="text-xl mt-2 pb-3 flex items-center"><i class="fas fa-list mr-3"></i>入金変更</h2>
-	<form th:action="@{/payment/appropriate}" method="get" class="p-10 bg-white rounded shadow-xl u-widthMin"><!--/* Memo デモ用にGETを設置 システム導入時POSTに変更 method="post" */--><!--/* 充当用 */-->
+	<div class="p-10 bg-white rounded shadow-xl">
 		<div class="mt-2">
 			<label class="block mt-2 ml-3 text-sm font-bold text-gray-700 tracking-wide">入金先</label>
-			<input type="text" name="supplier" value="ヤマダ電機" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
+			<input type="text" th:value="${payment.company.companyName}" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
 		</div>
 		<div class="mt-2">
 			<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">状態</label>
-			<input type="text" name="status" value="充当済" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
+			<input type="text" th:value="${payment.orderId == null ? '未充当' : '充当済'}" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
 		</div>
 		<div class="mt-2">
 			<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">入金日</label>
-			<input type="text" name="date" value="2022/08/01" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
+			<input type="text" th:value="${#temporals.format(payment.paymentDate, 'yyyy/MM/dd')}" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
 		</div>
 		<div class="mt-2">
 			<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">入金区分</label>
-			<input type="text" name="classification" value="カード決済" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
+			<input type="text" th:value="${payment.getPaymentTypeLabel()}" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
 		</div>
 		<div class="mt-2">
-			<label for="money" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">入金額</label>
-			<input type="text" name="money" value="" tabindex="1" placeholder="" id="money" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
+			<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">入金額</label>
+			<input type="text" th:value="${#numbers.formatInteger(payment.paymentAmount, 1, 'COMMA')}" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
 		</div>
+		<!-- Added: 発送予定日 (Scheduled Shipping Date) -->
 		<div class="mt-2">
-			<label for="send" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">発送予定日</label>
-			<input type="date" name="send" value="2021-12-30" tabindex="1" id="send" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+			<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">発送予定日</label>
+			<input type="date" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
 		</div>
+
+		<!-- 伝票リスト -->
 		<div class="mt-2">
 			<h2 class="text-xl pb-3 flex items-center mt-5">伝票リスト</h2>
 			<table class="border-2 border-gray-100 min-w-full bg-white">
 				<thead class="bg-gray-800 text-white">
 					<tr>
-						<th class="py-3 px-4 uppercase font-semibold text-sm">対象</th>
-						<th class="py-3 px-4 uppercase font-semibold text-sm">受注日</th>
-						<th class="w-2/5 py-3 px-4 uppercase font-semibold text-left text-sm">商品名</th>
-						<th class="py-3 px-4 uppercase font-semibold text-sm">受注数</th>
-						<th class="py-3 px-4 uppercase font-semibold text-sm">請求金額</td>
-						<th class="py-3 px-4 uppercase font-semibold text-sm">入金予定日</td>
+						<th class="py-3 px-4 uppercase font-semibold text-sm whitespace-nowrap">対象</th>
+						<th class="py-3 px-4 uppercase font-semibold text-sm whitespace-nowrap">受注日</th>
+						<th class="w-2/5 py-3 px-4 uppercase font-semibold text-left text-sm whitespace-nowrap">商品名</th>
+						<th class="py-3 px-4 uppercase font-semibold text-sm whitespace-nowrap">受注数</th>
+						<th class="py-3 px-4 uppercase font-semibold text-sm whitespace-nowrap">請求金額</th>
+						<th class="py-3 px-4 uppercase font-semibold text-sm whitespace-nowrap">入金予定日</th>
 					</tr>
 				</thead>
 				<tbody class="text-gray-700">
-					<tr>
-						<td class="border text-center py-3 px-4">
-							<input type="radio" name="item" value="1" tabindex="1" class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-						</td>
-						<td class="border text-center py-3 px-4">2022/08/01</td>
-						<td class="border text-left py-3 px-4">iPhone14 pro</td>
-						<td class="border text-center py-3 px-4">10</td>
-						<td class="border text-right py-3 px-4">900,000</td>
-						<td class="border text-center py-3 px-4">2022/08/10</td>
+					<tr th:if="${orders.isEmpty()}">
+						<td class="border text-center py-3 px-4" colspan="6">対象の伝票がありません</td>
 					</tr>
-					<tr class="bg-gray-200">
-						<td class="border border-gray-100 text-center py-3 px-4">
-							<input type="radio" name="item" value="2" tabindex="1" class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-						</td>
-						<td class="border border-gray-100 text-center py-3 px-4">2022/08/01</td>
-						<td class="border border-gray-100 text-left py-3 px-4">iPhone14 Pro Max</td>
-						<td class="border border-gray-100 text-center py-3 px-4">10</td>
-						<td class="border border-gray-100 text-right py-3 px-4">900,000</td>
-						<td class="border border-gray-100 text-center py-3 px-4">2022/08/10</td>
-					</tr>
-					<tr>
+					<tr th:each="order, iterStat : ${orders}" th:class="${iterStat.odd} ? '' : 'bg-gray-200'">
 						<td class="border text-center py-3 px-4">
-							<input type="radio" name="item" value="3" tabindex="1" class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+							<input type="radio" name="orderId" form="allocateForm" th:value="${order.id}" th:checked="${payment.orderId == order.id}" class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2">
 						</td>
-						<td class="border text-center py-3 px-4">2022/08/01</td>
-						<td class="border text-left py-3 px-4">iPhone14 pro</td>
-						<td class="border text-center py-3 px-4">10</td>
-						<td class="border text-right py-3 px-4">900,000</td>
-						<td class="border text-center py-3 px-4">2022/08/10</td>
+						<td class="border text-center py-3 px-4" th:text="${#temporals.format(order.orderDate, 'yyyy/MM/dd')}"></td>
+						<td class="border text-left py-3 px-4" th:text="${order.product.productName}"></td>
+						<td class="border text-center py-3 px-4" th:text="${order.quantity}"></td>
+						<td class="border text-right py-3 px-4" th:text="${#numbers.formatInteger(order.billingAmount, 1, 'COMMA')}"></td>
+						<td class="border text-center py-3 px-4" th:text="${order.paymentDueDate != null ? #temporals.format(order.paymentDueDate, 'yyyy/MM/dd') : ''}"></td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
-		<div class="flex flex-wrap mt-10">
-			<div class="w-52 pr-5 mt-auto">
-				<a th:href="@{/payment}" tabindex="1" class="w-full flex justify-center bg-gradient-to-r from-gray-400 to-gray-500 hover:bg-gradient-to-l hover:from-gray-400 hover:to-gray-500 text-gray-100 p-2 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500">戻る</a>
-			</div>
-			<div class="w-60 pr-2 mt-auto">
-				<button type="submit" name="delete" tabindex="1" form="delete" class="w-full flex justify-center bg-gradient-to-r from-gray-600 to-gray-700 hover:bg-gradient-to-l hover:from-gray-600 hover:to-gray-700 text-gray-100 p-2 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500">削除</button>
-			</div>
-			<div class="w-60 pr-2 mt-auto">
-				<button type="submit" name="appropriation" tabindex="1" class="w-full flex justify-center bg-gradient-to-r from-red-500 to-red-600 hover:bg-gradient-to-l hover:from-red-500 hover:to-red-600 text-gray-100 p-2 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500">充当</button>
-			</div>
-			<div class="w-60 mt-auto">
-				<button type="submit" name="cancellation" tabindex="1" form="stockUp" class="w-full flex justify-center bg-gradient-to-r from-lime-600 to-lime-700 hover:bg-gradient-to-l hover:from-lime-600 hover:to-lime-700 text-gray-100 p-2 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500">充当解除</button>
-			</div>
+
+		<!-- BUTTONS -->
+		<div class="flex flex-wrap gap-3 mt-10">
+			<!-- 戻る: Always visible -->
+			<a th:href="@{/payment}" style="min-width:120px; background:#9ca3af; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; text-decoration:none;">戻る</a>
+
+			<!-- 削除: Only visible when 未充当 (payment.orderId == null) -->
+			<button th:if="${payment.orderId == null}"
+					type="submit" form="deleteForm"
+					onclick="return confirm('削除してもよろしいですか？');"
+					style="min-width:120px; background:#374151; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;">削除</button>
+
+			<!-- 充当: Only visible when 未充当 (payment.orderId == null) -->
+			<button th:if="${payment.orderId == null}"
+					type="submit" form="allocateForm"
+					style="min-width:120px; background:#dc2626; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;">充当</button>
+
+			<!-- 充当解除: Only visible when 充当済 (payment.orderId != null) -->
+			<button th:if="${payment.orderId != null}"
+					type="submit" form="deallocateForm"
+					style="min-width:120px; background:#65a30d; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;">充当解除</button>
 		</div>
-	</form>
-	<form id="delete" action="" method="post"></form><!--/* 削除用 */-->
-	<form id="stockUp" action="" method="post"></form><!--/* 充当解除用 */-->
+	</div>
+
+	<!-- Hidden Forms -->
+	<form id="deleteForm" th:action="@{/payment/delete/{id}(id=${payment.id})}" method="post"></form>
+	<form id="allocateForm" th:action="@{/payment/allocate/{id}(id=${payment.id})}" method="post"></form>
+	<form id="deallocateForm" th:action="@{/payment/deallocate/{id}(id=${payment.id})}" method="post"></form>
 </main>
 <script></script>
 </html>

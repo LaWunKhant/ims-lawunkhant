@@ -29,31 +29,6 @@ public class SampleController {
         return "top/index";
     }
     
-    
-    /**
-     * 入金管理
-     */
-    @GetMapping("/payment")
-    public String paymentIndex() {
-    	return "payment/index";
-    }
-    
-    /**
-     * 入金登録
-     */
-    @GetMapping("/payment/entry")
-    public String paymentEntry() {
-    	return "payment/entry";
-    }
-    
-    /**
-     * 入金変更
-     */
-    @GetMapping("/payment/edit")
-    public String paymentEdit() {
-    	return "payment/edit";
-    }
-    
     /**
      * 発送管理
      */

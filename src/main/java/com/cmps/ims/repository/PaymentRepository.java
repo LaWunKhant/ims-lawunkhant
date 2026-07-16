@@ -37,18 +37,23 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     
     /**
      * Complex search with multiple conditions (AND logic)
+     * status: "unallocated" = orderId IS NULL, "allocated" = orderId IS NOT NULL, null = no filter
      */
     @Query("SELECT p FROM Payment p WHERE " +
            "(:companyId IS NULL OR p.companyId = :companyId) AND " +
            "(:paymentDateFrom IS NULL OR p.paymentDate >= :paymentDateFrom) AND " +
            "(:paymentDateTo IS NULL OR p.paymentDate <= :paymentDateTo) AND " +
-           "(:paymentType IS NULL OR p.paymentType = :paymentType) " +
+           "(:paymentType IS NULL OR p.paymentType = :paymentType) AND " +
+           "(:status IS NULL OR :status = '' OR " +
+           "  (:status = 'unallocated' AND p.orderId IS NULL) OR " +
+           "  (:status = 'allocated' AND p.orderId IS NOT NULL)) " +
            "ORDER BY p.paymentDate DESC, p.id DESC")
     Page<Payment> searchPayments(
             @Param("companyId") Integer companyId,
             @Param("paymentDateFrom") LocalDate paymentDateFrom,
             @Param("paymentDateTo") LocalDate paymentDateTo,
             @Param("paymentType") Integer paymentType,
+            @Param("status") String status,
             Pageable pageable);
     
     /**

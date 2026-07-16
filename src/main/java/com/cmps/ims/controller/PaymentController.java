@@ -1,6 +1,7 @@
 package com.cmps.ims.controller;
 
 import com.cmps.ims.entity.Payment;
+import com.cmps.ims.entity.Company;
 import com.cmps.ims.service.CompanyService;
 import com.cmps.ims.service.OrderService;
 import com.cmps.ims.service.PaymentService;
@@ -13,9 +14,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -59,7 +64,12 @@ public class PaymentController {
 			toDate = LocalDate.parse(paymentDateTo);
 		}
 
-		Page<Payment> payments = paymentService.searchPayments(companyId, fromDate, toDate, paymentType, pageable);
+		// Normalize empty string params to null (HTML forms submit "" for unselected dropdowns)
+		if (status != null && status.trim().isEmpty()) {
+			status = null;
+		}
+
+		Page<Payment> payments = paymentService.searchPayments(companyId, fromDate, toDate, paymentType, status, pageable);
 
 		model.addAttribute("payments", payments);
 		model.addAttribute("companies", companyService.findAll());
@@ -160,15 +170,23 @@ public class PaymentController {
 	 * Allocate payment to order (充当)
 	 */
 	@PostMapping("/allocate/{id}")
-	public String allocate(@PathVariable Integer id, @RequestParam("orderId") Integer orderId,
+	public String allocate(@PathVariable Integer id, @RequestParam(value = "orderId", required = false) Integer orderId,
 			RedirectAttributes redirectAttributes) {
 
 		log.debug("入金を充当: paymentId={}, orderId={}", id, orderId);
+
+		if (orderId == null) {
+			redirectAttributes.addFlashAttribute("error", "充当する伝票を選択してください");
+			return "redirect:/payment/edit/" + id;
+		}
 
 		try {
 			paymentService.allocatePayment(id, orderId, LocalDate.now());
 			log.info("入金充当完了: paymentId={}", id);
 			redirectAttributes.addFlashAttribute("message", "入金を充当しました");
+		} catch (IllegalArgumentException e) {
+			log.warn("入金の充当に失敗: {}", e.getMessage());
+			redirectAttributes.addFlashAttribute("error", e.getMessage());
 		} catch (Exception e) {
 			log.error("入金の充当に失敗", e);
 			redirectAttributes.addFlashAttribute("error", "入金の充当に失敗しました");
@@ -194,5 +212,96 @@ public class PaymentController {
 		}
 
 		return "redirect:/payment/edit/" + id;
+	}
+
+	/**
+	 * CSV取込 (CSV Upload)
+	 * Expected columns: 入金先(company name), 入金日(yyyy/MM/dd), 入金区分(銀行振込/カード決済), 入金額
+	 */
+	@PostMapping("/upload")
+	public String upload(@RequestParam("upload") MultipartFile file, RedirectAttributes redirectAttributes) {
+		log.debug("CSV取込開始: filename={}", file.getOriginalFilename());
+
+		if (file.isEmpty()) {
+			redirectAttributes.addFlashAttribute("error", "ファイルを選択してください");
+			return "redirect:/payment";
+		}
+
+		int successCount = 0;
+		int errorCount = 0;
+		StringBuilder errorDetails = new StringBuilder();
+
+		try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+
+			String line;
+			int rowNum = 0;
+			boolean firstRow = true;
+
+			while ((line = reader.readLine()) != null) {
+				rowNum++;
+				if (firstRow) {
+					// skip header row
+					firstRow = false;
+					continue;
+				}
+				if (line.trim().isEmpty()) {
+					continue;
+				}
+
+				try {
+					String[] cols = line.split(",");
+					if (cols.length < 4) {
+						throw new IllegalArgumentException("列数が不足しています");
+					}
+
+					String companyIdentifier = cols[0].trim();
+					String dateStr = cols[1].trim();
+					String typeStr = cols[2].trim();
+					String amountStr = cols[3].trim();
+
+					List<Company> companies = companyService.findAll();
+					Company matched = companies.stream()
+							.filter(c -> companyIdentifier.equals(c.getCompanyCode())
+									|| companyIdentifier.equals(c.getCompanyName()))
+							.findFirst()
+							.orElseThrow(() -> new IllegalArgumentException("取引先が見つかりません: " + companyIdentifier));
+
+					Payment payment = new Payment();
+					payment.setCompanyId(matched.getId());
+					payment.setPaymentDate(LocalDate.parse(dateStr.replace("/", "-")));
+
+					if (typeStr.equals("銀行振込") || typeStr.equals("1")) {
+						payment.setPaymentType(1);
+					} else if (typeStr.equals("カード決済") || typeStr.equals("2")) {
+						payment.setPaymentType(2);
+					} else {
+						throw new IllegalArgumentException("入金区分が不正です: " + typeStr);
+					}
+
+					payment.setPaymentAmount(Integer.parseInt(amountStr.replace(",", "")));
+
+					paymentService.createPayment(payment);
+					successCount++;
+				} catch (Exception rowEx) {
+					errorCount++;
+					errorDetails.append(String.format("%d行目: %s ", rowNum, rowEx.getMessage()));
+					log.warn("CSV行の取込に失敗: row={}, error={}", rowNum, rowEx.getMessage());
+				}
+			}
+
+			if (errorCount == 0) {
+				redirectAttributes.addFlashAttribute("message", successCount + "件の入金データを取り込みました");
+			} else {
+				redirectAttributes.addFlashAttribute("error",
+						successCount + "件成功、" + errorCount + "件失敗: " + errorDetails);
+			}
+
+		} catch (Exception e) {
+			log.error("CSV取込に失敗", e);
+			redirectAttributes.addFlashAttribute("error", "CSV取込に失敗しました: " + e.getMessage());
+		}
+
+		return "redirect:/payment";
 	}
 }

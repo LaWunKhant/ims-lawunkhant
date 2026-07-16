@@ -1,6 +1,8 @@
 package com.cmps.ims.service;
 
+import com.cmps.ims.entity.Order;
 import com.cmps.ims.entity.Payment;
+import com.cmps.ims.repository.OrderRepository;
 import com.cmps.ims.repository.PaymentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,9 @@ public class PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
     
+    @Autowired
+    private OrderRepository orderRepository;
+    
     /**
      * Get all payments (paginated)
      */
@@ -35,10 +40,10 @@ public class PaymentService {
      */
     public Page<Payment> searchPayments(Integer companyId, LocalDate paymentDateFrom, 
                                        LocalDate paymentDateTo, Integer paymentType, 
-                                       Pageable pageable) {
-        log.debug("入金検索: companyId={}, paymentDateFrom={}, paymentDateTo={}, paymentType={}", 
-                 companyId, paymentDateFrom, paymentDateTo, paymentType);
-        return paymentRepository.searchPayments(companyId, paymentDateFrom, paymentDateTo, paymentType, pageable);
+                                       String status, Pageable pageable) {
+        log.debug("入金検索: companyId={}, paymentDateFrom={}, paymentDateTo={}, paymentType={}, status={}", 
+                 companyId, paymentDateFrom, paymentDateTo, paymentType, status);
+        return paymentRepository.searchPayments(companyId, paymentDateFrom, paymentDateTo, paymentType, status, pageable);
     }
     
     /**
@@ -121,7 +126,21 @@ public class PaymentService {
             throw new IllegalArgumentException("入金が見つかりません: id=" + paymentId);
         }
         
+        Optional<Order> order = orderRepository.findById(orderId);
+        if (order.isEmpty()) {
+            throw new IllegalArgumentException("受注が見つかりません: id=" + orderId);
+        }
+        
         Payment p = payment.get();
+        Order o = order.get();
+        
+        // Validation: payment amount must match the order's billing amount
+        if (!p.getPaymentAmount().equals(o.getBillingAmount())) {
+            throw new IllegalArgumentException(
+                String.format("入金額（%,d円）と請求金額（%,d円）が一致しないため充当できません",
+                    p.getPaymentAmount(), o.getBillingAmount()));
+        }
+        
         p.setOrderId(orderId);
         p.setAllocationDate(allocationDate != null ? allocationDate : LocalDate.now());
         

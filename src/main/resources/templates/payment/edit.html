@@ -1,6 +1,11 @@
 <html th:replace="~{layouts/base :: layout('入金変更登録', ~{::main}, ~{::script})}">
 <main class="w-4/6 flex flex-col flex-grow p-6">
 	<h2 class="text-xl mt-2 pb-3 flex items-center"><i class="fas fa-list mr-3"></i>入金変更</h2>
+
+	<!-- Flash Messages -->
+	<div th:if="${message}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4" th:text="${message}"></div>
+	<div th:if="${error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" th:text="${error}"></div>
+
 	<div class="p-10 bg-white rounded shadow-xl">
 		<div class="mt-2">
 			<label class="block mt-2 ml-3 text-sm font-bold text-gray-700 tracking-wide">入金先</label>
@@ -21,11 +26,6 @@
 		<div class="mt-2">
 			<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">入金額</label>
 			<input type="text" th:value="${#numbers.formatInteger(payment.paymentAmount, 1, 'COMMA')}" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
-		</div>
-		<!-- Added: 発送予定日 (Scheduled Shipping Date) -->
-		<div class="mt-2">
-			<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">発送予定日</label>
-			<input type="date" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
 		</div>
 
 		<!-- 伝票リスト -->
@@ -62,24 +62,29 @@
 
 		<!-- BUTTONS -->
 		<div class="flex flex-wrap gap-3 mt-10">
-			<!-- 戻る: Always visible -->
 			<a th:href="@{/payment}" style="min-width:120px; background:#9ca3af; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; text-decoration:none;">戻る</a>
 
-			<!-- 削除: Only visible when 未充当 (payment.orderId == null) -->
-			<button th:if="${payment.orderId == null}"
-					type="submit" form="deleteForm"
+			<!-- 削除: only enabled when 未充当 (not yet allocated) -->
+			<button type="submit" form="deleteForm"
+					th:disabled="${payment.orderId != null}"
 					onclick="return confirm('削除してもよろしいですか？');"
-					style="min-width:120px; background:#374151; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;">削除</button>
+					th:style="${payment.orderId != null} ?
+						'min-width:120px; background:#d1d5db; color:#9ca3af; font-weight:bold; padding:12px 24px; border-radius:9999px; cursor:not-allowed; border:none;' :
+						'min-width:120px; background:#374151; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;'">削除</button>
 
-			<!-- 充当: Only visible when 未充当 (payment.orderId == null) -->
-			<button th:if="${payment.orderId == null}"
-					type="submit" form="allocateForm"
-					style="min-width:120px; background:#dc2626; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;">充当</button>
+			<!-- 充当: only enabled when 未充当 (not yet allocated) -->
+			<button type="submit" form="allocateForm"
+					th:disabled="${payment.orderId != null}"
+					th:style="${payment.orderId != null} ?
+						'min-width:120px; background:#d1d5db; color:#9ca3af; font-weight:bold; padding:12px 24px; border-radius:9999px; cursor:not-allowed; border:none;' :
+						'min-width:120px; background:#dc2626; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;'">充当</button>
 
-			<!-- 充当解除: Only visible when 充当済 (payment.orderId != null) -->
-			<button th:if="${payment.orderId != null}"
-					type="submit" form="deallocateForm"
-					style="min-width:120px; background:#65a30d; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;">充当解除</button>
+			<!-- 充当解除: only enabled when 充当済 (already allocated) -->
+			<button type="submit" form="deallocateForm"
+					th:disabled="${payment.orderId == null}"
+					th:style="${payment.orderId == null} ?
+						'min-width:120px; background:#d1d5db; color:#9ca3af; font-weight:bold; padding:12px 24px; border-radius:9999px; cursor:not-allowed; border:none;' :
+						'min-width:120px; background:#65a30d; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;'">充当解除</button>
 		</div>
 	</div>
 

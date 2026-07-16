@@ -37,6 +37,7 @@ public class OrderController {
     @GetMapping
     public String index(
             @RequestParam(value = "companyId", required = false) Integer companyId,
+            @RequestParam(value = "productId", required = false) Integer productId,
             @RequestParam(value = "orderDateFrom", required = false) LocalDate orderDateFrom,
             @RequestParam(value = "orderDateTo", required = false) LocalDate orderDateTo,
             @PageableDefault(size = 20, page = 0, sort = "orderDate", direction = Sort.Direction.DESC) Pageable pageable,
@@ -45,18 +46,19 @@ public class OrderController {
         log.debug("受注一覧表示");
         
         Page<Order> orders;
-        if (companyId != null || orderDateFrom != null || orderDateTo != null) {
-            orders = orderService.searchOrders(companyId, orderDateFrom, orderDateTo, pageable);
-            log.debug("検索実行: companyId={}, from={}, to={}", companyId, orderDateFrom, orderDateTo);
+        if (companyId != null || productId != null || orderDateFrom != null || orderDateTo != null) {
+            orders = orderService.searchOrders(companyId, productId, orderDateFrom, orderDateTo, pageable);
+            log.debug("検索実行: companyId={}, productId={}, from={}, to={}", companyId, productId, orderDateFrom, orderDateTo);
         } else {
             orders = orderService.findAllOrders(pageable);
             log.debug("全件表示");
         }
         
         model.addAttribute("orders", orders);
-        model.addAttribute("products", productService.findAll());	
         model.addAttribute("companies", companyService.findAll());
+        model.addAttribute("products", productService.findAll());
         model.addAttribute("companyId", companyId);
+        model.addAttribute("productId", productId);
         model.addAttribute("orderDateFrom", orderDateFrom);
         model.addAttribute("orderDateTo", orderDateTo);
         

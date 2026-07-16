@@ -35,12 +35,12 @@ public class OrderService {
     /**
      * 受注を検索（複合条件）
      */
-    public Page<Order> searchOrders(Integer companyId, LocalDate orderDateFrom, 
+    public Page<Order> searchOrders(Integer companyId, Integer productId, LocalDate orderDateFrom, 
                                      LocalDate orderDateTo, Pageable pageable) {
-        log.debug("受注検索: companyId={}, orderDateFrom={}, orderDateTo={}", 
-                 companyId, orderDateFrom, orderDateTo);
-        return orderRepository.findByCompanyIdAndOrderDateRange(
-            companyId, orderDateFrom, orderDateTo, pageable);
+        log.debug("受注検索: companyId={}, productId={}, orderDateFrom={}, orderDateTo={}", 
+                 companyId, productId, orderDateFrom, orderDateTo);
+        return orderRepository.searchOrders(
+            companyId, productId, orderDateFrom, orderDateTo, pageable);
     }
     
     /**

@@ -15,7 +15,7 @@
 				</select>
 			</div>
 			<!-- Company Selection -->
-			<div class="w-1/2">
+			<div class="w-1/4">
 				<label for="companyId" class="ml-3 text-sm font-bold text-gray-700 tracking-wide">取引先</label>
 				<select name="companyId" id="companyId" tabindex="1" class="w-full content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
 					<option value="">選択してください</option>
@@ -66,12 +66,11 @@
 						<th class="py-3 px-4 uppercase font-semibold text-sm">請求金額</th>
 						<th class="py-3 px-4 uppercase font-semibold text-sm">入金予定日</th>
 						<th class="py-3 px-4 uppercase font-semibold text-sm">入力者</th>
-						<th class="py-3 px-4 uppercase font-semibold text-sm">操作</th>
 					</tr>
 				</thead>
 				<tbody class="text-gray-700">
 					<tr th:if="${orders.empty}">
-						<td class="border text-center py-3 px-4" colspan="8">表示するデータがありません</td>
+						<td class="border text-center py-3 px-4" colspan="7">表示するデータがありません</td>
 					</tr>
 					<tr th:each="order, stat : ${orders}" th:classappend="${stat.odd} ? 'bg-gray-200' : ''">
 						<td class="border text-center py-3 px-4">
@@ -83,15 +82,12 @@
 						<td class="border text-right py-3 px-4" th:text="${#numbers.formatInteger(order.billingAmount, 1, 'COMMA')}"></td>
 						<td class="border text-center py-3 px-4" th:text="${order.paymentDueDate != null} ? ${#temporals.format(order.paymentDueDate, 'yyyy/MM/dd')} : '-'"></td>
 						<td class="border text-left py-3 px-4" th:text="${order.createdMemberId != null} ? ${order.createdMemberId} : '-'"></td>
-						<td class="border text-center py-3 px-4">
-							<a th:href="@{/receive/entry/{id}(id=${order.id})}" class="underline underline-offset-4 hover:text-blue-500">編集</a>
-						</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
 		<!-- Pagination -->
-		<form class="flex mt-3" th:action="@{/receive}" method="get">
+		<form th:if="${orders.totalPages > 0}" class="flex mt-3" th:action="@{/receive}" method="get">
 			<ul class="inline-flex space-x-2 m-auto">
 				<li>
 					<a th:if="${orders.hasPrevious()}"

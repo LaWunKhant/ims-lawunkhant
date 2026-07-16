@@ -41,6 +41,22 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findByPaymentDueDate(LocalDate paymentDueDate);
     
     /**
+     * ページング付き：企業・商品・受注日で複合検索
+     */
+    @Query("SELECT o FROM Order o WHERE " +
+           "(:companyId IS NULL OR o.companyId = :companyId) AND " +
+           "(:productId IS NULL OR o.productId = :productId) AND " +
+           "(:orderDateFrom IS NULL OR o.orderDate >= :orderDateFrom) AND " +
+           "(:orderDateTo IS NULL OR o.orderDate <= :orderDateTo)")
+    Page<Order> searchOrders(
+        @Param("companyId") Integer companyId,
+        @Param("productId") Integer productId,
+        @Param("orderDateFrom") LocalDate orderDateFrom,
+        @Param("orderDateTo") LocalDate orderDateTo,
+        Pageable pageable
+    );
+    
+    /**
      * ページング付き：企業と受注日で複合検索
      */
     @Query("SELECT o FROM Order o WHERE " +

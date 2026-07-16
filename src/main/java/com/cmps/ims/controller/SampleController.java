@@ -31,22 +31,6 @@ public class SampleController {
     
     
     /**
-     * 受注管理
-     */
-    @GetMapping("/receive")
-    public String receiveIndex() {
-    	return "receive/index";
-    }
-    
-    /**
-     * 受注登録／変更
-     */
-    @GetMapping("/receive/entry")
-    public String receiveEntry() {
-    	return "receive/entry";
-    }
-    
-    /**
      * 入金管理
      */
     @GetMapping("/payment")

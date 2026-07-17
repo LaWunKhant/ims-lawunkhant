@@ -62,6 +62,15 @@ public class OrderService {
     }
     
     /**
+     * 企業IDで充当可能な受注一覧を取得（status=0:受注のみ）
+     */
+    @Transactional(readOnly = true)
+    public List<Order> findAvailableOrdersByCompanyId(Integer companyId) {
+        log.debug("企業の充当可能な受注一覧: companyId={}", companyId);
+        return orderRepository.findByCompanyIdAndStatus(companyId, 0);
+    }
+    
+    /**
      * 商品IDで受注一覧を取得
      */
     @Transactional(readOnly = true)

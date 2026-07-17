@@ -21,6 +21,11 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findByCompanyId(Integer companyId);
     
     /**
+     * 企業IDと状態で受注を検索（充当可能な受注のみ取得する用）
+     */
+    List<Order> findByCompanyIdAndStatus(Integer companyId, Integer status);
+    
+    /**
      * 商品IDで受注を検索
      */
     List<Order> findByProductId(Integer productId);

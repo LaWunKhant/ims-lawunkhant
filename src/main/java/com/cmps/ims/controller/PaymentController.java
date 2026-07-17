@@ -112,7 +112,17 @@ public class PaymentController {
 		}
 
 		Payment p = payment.get();
-		List<com.cmps.ims.entity.Order> orders = orderService.findOrdersByCompanyId(p.getCompanyId());
+		List<com.cmps.ims.entity.Order> orders;
+
+		if (p.getOrderId() != null) {
+			// 充当済: 現在充当されている受注のみ表示
+			orders = orderService.findOrderById(p.getOrderId())
+					.map(List::of)
+					.orElse(List.of());
+		} else {
+			// 未充当: まだどの入金にも紐付いていない受注（status=0）のみ表示
+			orders = orderService.findAvailableOrdersByCompanyId(p.getCompanyId());
+		}
 
 		model.addAttribute("payment", p);
 		model.addAttribute("orders", orders);
@@ -171,17 +181,23 @@ public class PaymentController {
 	 */
 	@PostMapping("/allocate/{id}")
 	public String allocate(@PathVariable Integer id, @RequestParam(value = "orderId", required = false) Integer orderId,
+			@RequestParam(value = "shippingDate", required = false) String shippingDate,
 			RedirectAttributes redirectAttributes) {
 
-		log.debug("入金を充当: paymentId={}, orderId={}", id, orderId);
+		log.debug("入金を充当: paymentId={}, orderId={}, shippingDate={}", id, orderId, shippingDate);
 
 		if (orderId == null) {
 			redirectAttributes.addFlashAttribute("error", "充当する伝票を選択してください");
 			return "redirect:/payment/edit/" + id;
 		}
 
+		LocalDate shipDate = null;
+		if (shippingDate != null && !shippingDate.isEmpty()) {
+			shipDate = LocalDate.parse(shippingDate);
+		}
+
 		try {
-			paymentService.allocatePayment(id, orderId, LocalDate.now());
+			paymentService.allocatePayment(id, orderId, LocalDate.now(), shipDate);
 			log.info("入金充当完了: paymentId={}", id);
 			redirectAttributes.addFlashAttribute("message", "入金を充当しました");
 		} catch (IllegalArgumentException e) {
@@ -206,6 +222,9 @@ public class PaymentController {
 			paymentService.deallocatePayment(id);
 			log.info("入金充当解除完了: paymentId={}", id);
 			redirectAttributes.addFlashAttribute("message", "入金の充当を解除しました");
+		} catch (IllegalArgumentException e) {
+			log.warn("入金の充当解除に失敗: {}", e.getMessage());
+			redirectAttributes.addFlashAttribute("error", e.getMessage());
 		} catch (Exception e) {
 			log.error("入金の充当解除に失敗", e);
 			redirectAttributes.addFlashAttribute("error", "入金の充当解除に失敗しました");

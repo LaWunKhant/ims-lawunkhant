@@ -71,6 +71,18 @@ public class Order {
     @Column(name = "payment_due_date")
     private LocalDate paymentDueDate;
     
+    /**
+     * 受注状態: 0=受注, 1=入金, 2=発送済
+     */
+    @Column(name = "status")
+    private Integer status = 0;
+    
+    @Column(name = "shipping_date")
+    private LocalDate shippingDate;
+    
+    @Column(name = "allocation_date")
+    private LocalDate allocationDate;
+    
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -82,6 +94,10 @@ public class Order {
     @CreatedBy
     @Column(name = "created_member_id")
     private Integer createdMemberId;
+    
+    @LastModifiedBy
+    @Column(name = "update_member_id")
+    private Integer updateMemberId;
     
 
     @ManyToOne(fetch = FetchType.LAZY)

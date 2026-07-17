@@ -118,8 +118,8 @@ public class PaymentService {
     /**
      * Allocate payment to order (充当)
      */
-    public Payment allocatePayment(Integer paymentId, Integer orderId, LocalDate allocationDate) {
-        log.debug("入金を充当: paymentId={}, orderId={}", paymentId, orderId);
+    public Payment allocatePayment(Integer paymentId, Integer orderId, LocalDate allocationDate, LocalDate shippingDate) {
+        log.debug("入金を充当: paymentId={}, orderId={}, shippingDate={}", paymentId, orderId, shippingDate);
         
         Optional<Payment> payment = paymentRepository.findById(paymentId);
         if (payment.isEmpty()) {
@@ -141,8 +141,21 @@ public class PaymentService {
                     p.getPaymentAmount(), o.getBillingAmount()));
         }
         
+        // Validation: 発送予定日 is required when allocating
+        if (shippingDate == null) {
+            throw new IllegalArgumentException("発送予定日を入力してください");
+        }
+        
+        LocalDate actualAllocationDate = allocationDate != null ? allocationDate : LocalDate.now();
+        
         p.setOrderId(orderId);
-        p.setAllocationDate(allocationDate != null ? allocationDate : LocalDate.now());
+        p.setAllocationDate(actualAllocationDate);
+        
+        // Update order status to 1 (入金) since it's now paid/allocated
+        o.setStatus(1);
+        o.setAllocationDate(actualAllocationDate);
+        o.setShippingDate(shippingDate);
+        orderRepository.save(o);
         
         Payment saved = paymentRepository.save(p);
         log.info("入金充当完了: paymentId={}, orderId={}", paymentId, orderId);
@@ -161,6 +174,23 @@ public class PaymentService {
         }
         
         Payment p = payment.get();
+        
+        if (p.getOrderId() != null) {
+            Optional<Order> order = orderRepository.findById(p.getOrderId());
+            if (order.isPresent()) {
+                Order o = order.get();
+                // 発送済（status=2）の場合は充当解除できない
+                if (o.getStatus() != null && o.getStatus() == 2) {
+                    throw new IllegalArgumentException("発送済の受注は充当解除できません");
+                }
+                // 受注状態を 0（受注）に戻し、充当関連の日付をクリア
+                o.setStatus(0);
+                o.setAllocationDate(null);
+                o.setShippingDate(null);
+                orderRepository.save(o);
+            }
+        }
+        
         p.setOrderId(null);
         p.setAllocationDate(null);
         

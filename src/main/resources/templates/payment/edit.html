@@ -27,6 +27,13 @@
 			<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">入金額</label>
 			<input type="text" th:value="${#numbers.formatInteger(payment.paymentAmount, 1, 'COMMA')}" class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
 		</div>
+		<div class="mt-2">
+			<label for="shippingDate" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">発送予定日</label>
+			<input type="date" name="shippingDate" id="shippingDate" form="allocateForm"
+				   th:value="${payment.order != null and payment.order.shippingDate != null} ? ${#temporals.format(payment.order.shippingDate, 'yyyy-MM-dd')} : ''"
+				   th:disabled="${payment.orderId != null}"
+				   class="w-1/5 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+		</div>
 
 		<!-- 伝票リスト -->
 		<div class="mt-2">

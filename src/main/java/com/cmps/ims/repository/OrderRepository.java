@@ -48,18 +48,18 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     /**
      * ページング付き：企業・商品・受注日で複合検索
      */
-    @Query("SELECT o FROM Order o WHERE " +
-           "(:companyId IS NULL OR o.companyId = :companyId) AND " +
-           "(:productId IS NULL OR o.productId = :productId) AND " +
-           "(:orderDateFrom IS NULL OR o.orderDate >= :orderDateFrom) AND " +
-           "(:orderDateTo IS NULL OR o.orderDate <= :orderDateTo)")
-    Page<Order> searchOrders(
-        @Param("companyId") Integer companyId,
-        @Param("productId") Integer productId,
-        @Param("orderDateFrom") LocalDate orderDateFrom,
-        @Param("orderDateTo") LocalDate orderDateTo,
-        Pageable pageable
-    );
+    @Query("SELECT o FROM Order o WHERE o.status = 0 AND " +
+            "(:companyId IS NULL OR o.companyId = :companyId) AND " +
+            "(:productId IS NULL OR o.productId = :productId) AND " +
+            "(:orderDateFrom IS NULL OR o.orderDate >= :orderDateFrom) AND " +
+            "(:orderDateTo IS NULL OR o.orderDate <= :orderDateTo)")
+     Page<Order> searchOrders(
+         @Param("companyId") Integer companyId,
+         @Param("productId") Integer productId,
+         @Param("orderDateFrom") LocalDate orderDateFrom,
+         @Param("orderDateTo") LocalDate orderDateTo,
+         Pageable pageable
+     );
     
     /**
      * ページング付き：企業と受注日で複合検索
@@ -75,10 +75,16 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
         Pageable pageable
     );
     
+    
     /**
      * ページング付き：全受注を取得（降順）
      */
     Page<Order> findAllByOrderByOrderDateDesc(Pageable pageable);
+    
+    /**
+     * ページング付き：status指定で受注を取得（降順）— 受注一覧画面用（status=0のみ表示）
+     */
+    Page<Order> findByStatusOrderByOrderDateDesc(Integer status, Pageable pageable);
     
     /**
      * 課税区分で検索

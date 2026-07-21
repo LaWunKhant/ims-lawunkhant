@@ -20,7 +20,7 @@ import java.util.Optional;
 @Transactional
 @Slf4j
 public class OrderService {
-    
+    	
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     
@@ -29,7 +29,7 @@ public class OrderService {
      */
     public Page<Order> findAllOrders(Pageable pageable) {
         log.debug("受注全件取得: pageable={}", pageable);
-        return orderRepository.findAllByOrderByOrderDateDesc(pageable);
+        return orderRepository.findByStatusOrderByOrderDateDesc(0, pageable);
     }
     
     /**

@@ -100,15 +100,21 @@
 		<!-- Pagination -->
 		<div th:if="${payments.totalPages > 0}" class="flex mt-3">
 			<ul class="inline-flex space-x-2 m-auto">
-				<li th:if="${payments.hasPrevious()}">
-					<a th:href="@{/payment(page=${payments.number - 1}, companyId=${companyId}, status=${status}, paymentDateFrom=${paymentDateFrom}, paymentDateTo=${paymentDateTo})}" class="flex items-center justify-center w-10 h-10 text-indigo-600 transition-colors duration-150 rounded-full focus:shadow-outline hover:bg-indigo-100">‹</a>
+				<li>
+				    <a th:if="${payments.hasPrevious()}"
+				       th:href="@{/payment(page=${payments.number - 1}, companyId=${companyId}, status=${status}, paymentDateFrom=${paymentDateFrom}, paymentDateTo=${paymentDateTo})}"
+				       class="flex items-center justify-center w-10 h-10 text-indigo-600 transition-colors duration-150 rounded-full focus:shadow-outline hover:bg-indigo-100">‹</a>
+				    <span th:unless="${payments.hasPrevious()}" class="flex items-center justify-center w-10 h-10 text-gray-400">‹</span>
 				</li>
 				<li th:each="i : ${#numbers.sequence(0, payments.totalPages - 1)}">
 					<a th:if="${i != payments.number}" th:href="@{/payment(page=${i}, companyId=${companyId}, status=${status}, paymentDateFrom=${paymentDateFrom}, paymentDateTo=${paymentDateTo})}" class="w-10 h-10 flex items-center justify-center text-indigo-600 transition-colors duration-150 rounded-full hover:bg-indigo-100 focus:shadow-outline" th:text="${i + 1}"></a>
 					<span th:if="${i == payments.number}" class="w-10 h-10 flex items-center justify-center text-white transition-colors duration-150 bg-indigo-600 rounded-full focus:shadow-outline" th:text="${i + 1}"></span>
 				</li>
-				<li th:if="${payments.hasNext()}">
-					<a th:href="@{/payment(page=${payments.number + 1}, companyId=${companyId}, status=${status}, paymentDateFrom=${paymentDateFrom}, paymentDateTo=${paymentDateTo})}" class="flex items-center justify-center w-10 h-10 text-indigo-600 transition-colors duration-150 rounded-full focus:shadow-outline hover:bg-indigo-100">›</a>
+				<li>
+				    <a th:if="${payments.hasNext()}"
+				       th:href="@{/payment(page=${payments.number + 1}, companyId=${companyId}, status=${status}, paymentDateFrom=${paymentDateFrom}, paymentDateTo=${paymentDateTo})}"
+				       class="flex items-center justify-center w-10 h-10 text-indigo-600 transition-colors duration-150 rounded-full focus:shadow-outline hover:bg-indigo-100">›</a>
+				    <span th:unless="${payments.hasNext()}" class="flex items-center justify-center w-10 h-10 text-gray-400">›</span>
 				</li>
 			</ul>
 		</div>

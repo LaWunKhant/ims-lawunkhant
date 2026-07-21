@@ -59,6 +59,7 @@ public class OrderController {
         model.addAttribute("products", productService.findAll());
         model.addAttribute("companyId", companyId);
         model.addAttribute("productId", productId);
+        model.addAttribute("order", new Order());
         model.addAttribute("orderDateFrom", orderDateFrom);
         model.addAttribute("orderDateTo", orderDateTo);
         

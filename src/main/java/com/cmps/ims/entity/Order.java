@@ -61,7 +61,7 @@ public class Order {
     @Min(value = 0, message = "課税区分は0または1です")
     @Max(value = 1, message = "課税区分は0または1です")
     @Column(name = "tax_flag", nullable = false)
-    private Integer taxFlag;
+    private Integer taxFlag = 0;
     
     @NotNull(message = "請求金額を計算してください")
     @PositiveOrZero(message = "請求金額は0以上である必要があります")

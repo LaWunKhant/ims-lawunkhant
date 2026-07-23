@@ -1,7 +1,9 @@
 package com.cmps.ims.service;
 
+import com.cmps.ims.entity.Company;
 import com.cmps.ims.entity.Order;
 import com.cmps.ims.entity.Product;
+import com.cmps.ims.repository.CompanyRepository;
 import com.cmps.ims.repository.OrderRepository;
 import com.cmps.ims.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,8 @@ public class OrderService {
     	
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
-    
+    private final CompanyRepository companyRepository;
+    private final MailService mailService;
     /**
      * 受注を全件取得（ページング付き、降順）
      */
@@ -192,5 +195,90 @@ public class OrderService {
         return orders.stream()
             .map(Order::getBillingAmount)
             .reduce(0, Integer::sum);
+    }
+    
+    /**
+     * 発送画面用一覧取得
+     */
+    @Transactional(readOnly = true)
+    public Page<Order> searchShippableOrders(Integer companyId, Integer status,
+            LocalDate orderDateFrom, LocalDate orderDateTo, Pageable pageable) {
+        return orderRepository.searchShippableOrders(companyId, status, orderDateFrom, orderDateTo, pageable);
+    }
+    
+    /**
+     * 発送処理：在庫チェック→在庫減算→status更新→メール送信(スタブ)
+     */
+    public Order shipOrder(Integer orderId, LocalDate sendDate) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("受注が見つかりません: id=" + orderId));
+
+        if (order.getStatus() == null || order.getStatus() != 1) {
+            throw new IllegalArgumentException("入金済（充当済）の受注のみ発送できます");
+        }
+
+        if (sendDate == null) {
+            throw new IllegalArgumentException("発送日を入力してください");
+        }
+
+        Product product = productRepository.findById(order.getProductId())
+            .orElseThrow(() -> new IllegalArgumentException("商品が見つかりません: id=" + order.getProductId()));
+
+        if (product.getStock() == null || product.getStock() < order.getQuantity()) {
+            throw new IllegalArgumentException(
+                String.format("在庫が不足しているため発送できません（在庫数: %d, 受注数: %d）",
+                    product.getStock() == null ? 0 : product.getStock(), order.getQuantity()));
+        }
+
+        // 在庫減算
+        product.setStock(product.getStock() - order.getQuantity());
+        productRepository.save(product);
+
+        // 発送情報更新
+        order.setSendDate(sendDate);
+        order.setStatus(2);
+        Order saved = orderRepository.save(order);
+        
+        // 発送完了メール送信
+        Company company = companyRepository.findById(order.getCompanyId())
+        	    .orElseThrow(() -> new IllegalArgumentException("企業が見つかりません: id=" + order.getCompanyId()));
+
+        	mailService.sendShippingNotification(
+        	    company.getEmail(),
+        	    company.getCompanyName(),
+        	    product.getProductName(),
+        	    order.getQuantity(),
+        	    order.getBillingAmount(),
+        	    sendDate.toString()
+        	);
+
+        log.info("発送処理完了: orderId={}, sendDate={}", orderId, sendDate);
+        return saved;
+    }
+
+    /**
+     * 発送解除：status/送付日を戻し、在庫を復元
+     */
+    public Order unshipOrder(Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("受注が見つかりません: id=" + orderId));
+
+        if (order.getStatus() == null || order.getStatus() != 2) {
+            throw new IllegalArgumentException("発送済の受注のみ発送解除できます");
+        }
+
+        Product product = productRepository.findById(order.getProductId())
+            .orElseThrow(() -> new IllegalArgumentException("商品が見つかりません: id=" + order.getProductId()));
+
+        // 在庫を復元
+        product.setStock(product.getStock() + order.getQuantity());
+        productRepository.save(product);
+
+        order.setSendDate(null);
+        order.setStatus(1);
+        Order saved = orderRepository.save(order);
+
+        log.info("発送解除完了: orderId={}", orderId);
+        return saved;
     }
 }

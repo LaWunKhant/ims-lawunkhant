@@ -1,0 +1,25 @@
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+	<title>発送完了のお知らせ</title>
+	<style>
+		h1 { font-size: 20px; text-decoration: underline; }
+		p { font-size: 16px; }
+		table { border-collapse: collapse; margin: 16px 0; }
+		td, th { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+	</style>
+</head>
+<body>
+	<div>
+		<h1 th:text="${companyName} + ' 様'"></h1>
+		<p>ご注文いただいた商品を発送いたしましたので、お知らせいたします。</p>
+		<table>
+			<tr><th>商品名</th><td th:text="${productName}"></td></tr>
+			<tr><th>数量</th><td th:text="${quantity}"></td></tr>
+			<tr><th>請求金額</th><td th:text="${billingAmount} + '円'"></td></tr>
+			<tr><th>発送日</th><td th:text="${sendDate}"></td></tr>
+		</table>
+		<p>ご利用ありがとうございました。</p>
+	</div>
+</body>
+</html>

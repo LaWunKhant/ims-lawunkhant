@@ -29,21 +29,6 @@ public class SampleController {
         return "top/index";
     }
     
-    /**
-     * 発送管理
-     */
-    @GetMapping("/send")
-    public String sendIndex() {
-    	return "send/index";
-    }
-    
-    /**
-     * 発送登録／変更
-     */
-    @GetMapping("/send/entry")
-    public String sendEntry() {
-    	return "send/entry";
-    }
     
     /**
      * 勤怠管理

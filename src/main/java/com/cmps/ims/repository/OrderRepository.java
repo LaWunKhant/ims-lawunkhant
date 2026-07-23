@@ -104,4 +104,21 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
         @Param("minAmount") Integer minAmount,
         @Param("maxAmount") Integer maxAmount
     );
+    
+    /**
+     * 発送画面用：状態(1:入金済 or 2:発送済)・取引先・受注日で複合検索
+     */
+    @Query("SELECT o FROM Order o WHERE o.status IN (1, 2) AND " +
+           "(:companyId IS NULL OR o.companyId = :companyId) AND " +
+           "(:status IS NULL OR o.status = :status) AND " +
+           "(:orderDateFrom IS NULL OR o.orderDate >= :orderDateFrom) AND " +
+           "(:orderDateTo IS NULL OR o.orderDate <= :orderDateTo) " +
+           "ORDER BY o.orderDate DESC")
+    Page<Order> searchShippableOrders(
+        @Param("companyId") Integer companyId,
+        @Param("status") Integer status,
+        @Param("orderDateFrom") LocalDate orderDateFrom,
+        @Param("orderDateTo") LocalDate orderDateTo,
+        Pageable pageable
+    );
 }

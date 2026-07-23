@@ -80,6 +80,9 @@ public class Order {
     @Column(name = "shipping_date")
     private LocalDate shippingDate;
     
+    @Column(name = "send_date")
+    private LocalDate sendDate;
+    
     @Column(name = "allocation_date")
     private LocalDate allocationDate;
     

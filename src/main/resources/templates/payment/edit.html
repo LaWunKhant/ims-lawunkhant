@@ -88,8 +88,8 @@
 
 			<!-- 充当解除: only enabled when 充当済 (already allocated) -->
 			<button type="submit" form="deallocateForm"
-					th:disabled="${payment.orderId == null}"
-					th:style="${payment.orderId == null} ?
+					th:disabled="${payment.orderId == null or (payment.order != null and payment.order.status == 2)}"
+					th:style="${payment.orderId == null or (payment.order != null and payment.order.status == 2)} ?
 						'min-width:120px; background:#d1d5db; color:#9ca3af; font-weight:bold; padding:12px 24px; border-radius:9999px; cursor:not-allowed; border:none;' :
 						'min-width:120px; background:#65a30d; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;'">充当解除</button>
 		</div>

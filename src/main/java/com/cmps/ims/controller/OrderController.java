@@ -165,4 +165,67 @@ public class OrderController {
         
         return "redirect:/receive";
     }
+    
+    @GetMapping("/shipping")
+    public String shippingIndex(
+            @RequestParam(value = "companyId", required = false) Integer companyId,
+            @RequestParam(value = "status", required = false) Integer status,
+            @RequestParam(value = "orderDateFrom", required = false) LocalDate orderDateFrom,
+            @RequestParam(value = "orderDateTo", required = false) LocalDate orderDateTo,
+            @PageableDefault(size = 20, page = 0) Pageable pageable,
+            Model model) {
+
+        Page<Order> orders = orderService.searchShippableOrders(companyId, status, orderDateFrom, orderDateTo, pageable);
+
+        model.addAttribute("orders", orders);
+        model.addAttribute("companies", companyService.findAll());
+        model.addAttribute("companyId", companyId);
+        model.addAttribute("status", status);
+        model.addAttribute("orderDateFrom", orderDateFrom);
+        model.addAttribute("orderDateTo", orderDateTo);
+
+        return "shipping/index";
+    }
+
+    @GetMapping("/shipping/entry/{id}")
+    public String shippingEntry(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Order> order = orderService.findOrderById(id);
+        if (order.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "受注が見つかりません");
+            return "redirect:/receive/shipping";
+        }
+        model.addAttribute("order", order.get());
+        return "shipping/entry";
+    }
+
+    @PostMapping("/shipping/ship/{id}")
+    public String ship(@PathVariable Integer id,
+            @RequestParam(value = "sendDate", required = false) String sendDate,
+            RedirectAttributes redirectAttributes) {
+
+        LocalDate parsedDate = null;
+        if (sendDate != null && !sendDate.isEmpty()) {
+            parsedDate = LocalDate.parse(sendDate);
+        }
+
+        try {
+            orderService.shipOrder(id, parsedDate);
+            redirectAttributes.addFlashAttribute("message", "発送処理が完了しました");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+
+        return "redirect:/receive/shipping/entry/" + id;
+    }
+
+    @PostMapping("/shipping/unship/{id}")
+    public String unship(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        try {
+            orderService.unshipOrder(id);
+            redirectAttributes.addFlashAttribute("message", "発送を解除しました");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/receive/shipping/entry/" + id;
+    }
 }

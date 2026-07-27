@@ -38,21 +38,7 @@ public class SampleController {
     	return "attendance/index";
     }
     
-    /**
-     * ユーザマスタ
-     */
-    @GetMapping("/user")
-    public String userIndex() {
-    	return "user/index";
-    }
-    
-    /**
-     * ユーザ登録／変更
-     */
-    @GetMapping("/user/entry")
-    public String userEntry() {
-    	return "user/entry";
-    }
+   
     
     /**
      * 発注管理

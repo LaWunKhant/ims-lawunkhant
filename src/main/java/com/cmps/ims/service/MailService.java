@@ -54,4 +54,37 @@ public class MailService {
             // メール送信失敗は発送処理自体を失敗させない（在庫・statusは既に確定済みのため）
         }
     }
+    
+    public void sendPurchaseOrderNotification(String toEmail, String companyName, String productName,
+            Integer quantity, Integer paymentAmount) {
+
+        SpringTemplateEngine engine = new SpringTemplateEngine();
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        templateResolver.setCharacterEncoding("UTF-8");
+        engine.setTemplateResolver(templateResolver);
+
+        Map<String, Object> datas = new HashMap<>();
+        datas.put("companyName", companyName);
+        datas.put("productName", productName);
+        datas.put("quantity", quantity);
+        datas.put("paymentAmount", paymentAmount);
+
+        Context context = new Context();
+        context.setVariables(datas);
+
+        String htmlBody = engine.process("/templates/mail/purchase.html", context);
+
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
+            helper.setTo(toEmail);
+            helper.setSubject("発注のお知らせ");
+            helper.setText(htmlBody, true);
+            javaMailSender.send(mimeMessage);
+            log.info("発注メール送信成功: to={}", toEmail);
+        } catch (Exception e) {
+            log.error("発注メール送信失敗: to={}", toEmail, e);
+            // メール送信失敗は発注処理自体を失敗させない
+        }
+    }
 }

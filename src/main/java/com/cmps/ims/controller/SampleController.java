@@ -30,29 +30,6 @@ public class SampleController {
     }
     
     
-    /**
-     * 勤怠管理
-     */
-    @GetMapping("/attendance")
-    public String attendanceIndex() {
-    	return "attendance/index";
-    }
-    
    
     
-    /**
-     * 発注管理
-     */
-    @GetMapping("/place")
-    public String placeIndex() {
-    	return "place/index";
-    }
-    
-    /**
-     * 発注登録／変更
-     */
-    @GetMapping("/place/entry")
-    public String placeEntry() {
-    	return "place/entry";
-    }
 }

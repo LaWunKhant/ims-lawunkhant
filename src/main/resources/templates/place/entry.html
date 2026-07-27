@@ -2,91 +2,180 @@
 <main class="w-full flex flex-col flex-grow p-6">
 	<div class="w-2/3 mt-2 my-6">
 		<h2 class="text-xl pb-3 flex items-center"><i class="fas fa-list mr-3"></i>発注依頼登録変更</h2>
-		<form th:action="@{/place/entry}" method="get" class="p-10 bg-white rounded shadow-xl"><!--/* Memo デモ用にGETを設置 システム導入時POSTに変更 method="post" */--><!--/* Memo 登録用 */-->
+
+		<div th:if="${message}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4" th:text="${message}"></div>
+		<div th:if="${error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" th:text="${error}"></div>
+
+		<form th:action="@{/place/entry}" method="post" th:object="${purchaseOrder}" class="p-10 bg-white rounded shadow-xl">
+			<input type="hidden" th:field="*{id}">
+
 			<div class="mt-4">
-				<label for="place" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">発注先</label>
-				<select name="place" tabindex="1" id="place" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+				<label for="companyId" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">発注先</label>
+				<select name="companyId" id="companyId" tabindex="1"
+						th:disabled="${purchaseOrder.id != null}"
+						class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500"
+						th:classappend="${#fields.hasErrors('companyId')} ? 'border-red-500' : ''">
 					<option value="">選択してください</option>
-					<option value="1">Apple Japan合同会社</option>
+					<option th:each="company : ${companies}"
+							th:value="${company.id}"
+							th:text="${company.companyName}"
+							th:selected="${purchaseOrder.companyId == company.id}">
+					</option>
 				</select>
+				<p th:if="${#fields.hasErrors('companyId')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{companyId}"></p>
 			</div>
+
 			<div class="mt-2">
-				<label for="schedule" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">発注予定日</label>
-				<input type="date" name="schedule" tabindex="1" value="2021-12-30" id="schedule" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+				<label for="orderPlannedDate" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">発注予定日</label>
+				<input type="date" name="orderPlannedDate" th:value="${#temporals.format(purchaseOrder.orderPlannedDate, 'yyyy-MM-dd')}" tabindex="1" id="orderPlannedDate"
+					   th:readonly="${purchaseOrder.id != null}"
+					   class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500"
+					   th:classappend="${#fields.hasErrors('orderPlannedDate')} ? 'border-red-500' : ''">
+				<p th:if="${#fields.hasErrors('orderPlannedDate')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{orderPlannedDate}"></p>
 			</div>
+
 			<div class="mt-2">
-				<label for="product" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">商品</label>
-				<select name="product" tabindex="1" id="product" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+				<label for="productId" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">商品</label>
+				<select name="productId" id="productId" tabindex="1"
+						th:disabled="${purchaseOrder.id != null}"
+						class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500"
+						th:classappend="${#fields.hasErrors('productId')} ? 'border-red-500' : ''">
 					<option value="">選択してください</option>
-					<option value="iPhone14">iPhone14</option>
-					<option value="iPhone14 plus">iPhone14 plus</option>
-					<option value="iPhone14 pro">iPhone14 pro</option>
-					<option value="iPhone14 pro max">iPhone14 pro max</option>
+					<option th:each="product : ${products}"
+							th:value="${product.id}"
+							th:text="${product.productName}"
+							th:data-price="${product.price}"
+							th:data-stock="${product.stock}"
+							th:selected="${purchaseOrder.productId == product.id}">
+					</option>
 				</select>
+				<p th:if="${#fields.hasErrors('productId')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{productId}"></p>
 			</div>
+
 			<div class="mt-2">
 				<label class="block mt-2 ml-3 text-sm font-bold text-gray-700 tracking-wide">仕入単価</label>
-				<input type="text" name="price" value="" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
+				<input type="text" id="unitPriceDisplay" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300" disabled>
 			</div>
+
 			<div class="mt-2">
-				<label for="stock" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">在庫数</label>
-				<input type="text" name="stock" value="" tabindex="1" placeholder="" id="stock" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500" disabled>
+				<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">在庫数</label>
+				<input type="text" id="stockDisplay" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300" disabled>
 			</div>
+
 			<div class="mt-2">
-				<label for="order" class="block mt-2 ml-3 text-sm font-bold text-gray-700 tracking-wide">商品発注数</label>
-				<input type="text" name="order" value="" id="order" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+				<label for="quantity" class="block mt-2 ml-3 text-sm font-bold text-gray-700 tracking-wide">商品発注数</label>
+				<input type="number" name="quantity" th:field="*{quantity}" id="quantity"
+					   th:readonly="${purchaseOrder.id != null}"
+					   class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500"
+					   th:classappend="${#fields.hasErrors('quantity')} ? 'border-red-500' : ''">
+				<p th:if="${#fields.hasErrors('quantity')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{quantity}"></p>
 			</div>
+
 			<div class="mt-2">
 				<label class="block mt-2 ml-3 text-sm font-bold text-gray-700 tracking-wide">金額</label>
-				<input type="text" name="money" value="111" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none" readonly>
+				<input type="text" id="amountDisplay" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300" readonly>
 			</div>
+
 			<div class="mt-4">
 				<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">課税</label>
 				<div class="flex">
 					<div class="flex items-center ml-4">
-						<input id="taxation" type="radio" value="" name="taxation" tabindex="1" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-100 focus:ring-blue-100 dark:focus:ring-blue-200 dark:ring-offset-gray-400 focus:ring-1 dark:bg-gray-200 dark:border-gray-400" checked>
-						<label for="taxation" class="ml-2 dark:text-gray-300">非課税</label>
+						<input id="taxFlag0" type="radio" value="0" th:field="*{taxFlag}" th:disabled="${purchaseOrder.id != null}" class="w-4 h-4">
+						<label for="taxFlag0" class="ml-2">非課税</label>
 					</div>
 					<div class="flex items-center ml-4">
-							<input id="taxation2" type="radio" value="" name="taxation" tabindex="1" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-100 focus:ring-blue-100 dark:focus:ring-blue-200 dark:ring-offset-gray-400 focus:ring-1 dark:bg-gray-200 dark:border-gray-400">
-							<label for="taxation2" class="ml-2 dark:text-gray-300">課税</label>
+						<input id="taxFlag1" type="radio" value="1" th:field="*{taxFlag}" th:disabled="${purchaseOrder.id != null}" class="w-4 h-4">
+						<label for="taxFlag1" class="ml-2">課税</label>
 					</div>
 				</div>
 			</div>
+
 			<div class="mt-2">
 				<label class="block mt-2 ml-3 text-sm font-bold text-gray-700 tracking-wide">支払金額</label>
-				<input type="text" name="total" value="" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none" readonly>
+				<input type="text" th:field="*{paymentAmount}" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300" readonly>
 			</div>
+
 			<div class="mt-2">
-				<label for="placedOn" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">発注日</label>
-				<input type="date" name="placedOn" form="submitOrder" value="2021-12-30" id="placedOn" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+				<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">発注日</label>
+				<input type="text" th:value="${purchaseOrder.orderDate != null} ? ${#temporals.format(purchaseOrder.orderDate, 'yyyy/MM/dd')} : '-'" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300" disabled>
 			</div>
+
 			<div class="mt-2">
-				<label for="stockedOn" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">仕入日</label>
-				<input type="date" name="stockedOn" form="stockUp" value="2021-12-30" id="stockedOn" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+				<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">仕入日</label>
+				<input type="text" th:value="${purchaseOrder.purchaseDate != null} ? ${#temporals.format(purchaseOrder.purchaseDate, 'yyyy/MM/dd')} : '-'" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300" disabled>
 			</div>
-			<div class="flex flex-wrap mt-10">
-				<div class="w-52 pr-5 mt-auto">
-					<a th:href="@{/place}" tabindex="1" class="w-full flex justify-center bg-gradient-to-r from-gray-400 to-gray-500 hover:bg-gradient-to-l hover:from-gray-400 hover:to-gray-500 text-gray-100 p-2 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500">戻る</a>
-				</div>
-				<div class="w-56 pr-2 mt-auto">
-					<button type="submit" name="entry" tabindex="1" class="w-full flex justify-center bg-gradient-to-r from-red-500 to-red-600 hover:bg-gradient-to-l hover:from-red-500 hover:to-red-600 text-gray-100 p-2 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500">登録</button>
-				</div>
-				<div class="w-56 pr-5 mt-auto">
-					<button type="submit" name="delete" tabindex="1" form="delete" class="w-full flex justify-center bg-gradient-to-r from-gray-600 to-gray-700 hover:bg-gradient-to-l hover:from-gray-600 hover:to-gray-700 text-gray-100 p-2 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500">削除</button>
-				</div>
-				<div class="w-56 pr-2 mt-auto">
-					<button type="submit" name="submit_order" tabindex="1" form="submitOrder" class="w-full flex justify-center bg-gradient-to-r from-orange-600 to-orange-700 hover:bg-gradient-to-l hover:from-orange-600 hover:to-orange-700 text-gray-100 p-2 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500">発注する</button>
-				</div>
-				<div class="w-56 mt-auto">
-					<button type="submit" name="submit_stock" tabindex="1" form="stockUp" class="w-full flex justify-center bg-gradient-to-r from-lime-600 to-lime-700 hover:bg-gradient-to-l hover:from-lime-600 hover:to-lime-700 text-gray-100 p-2 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500">仕入する</button>
-				</div>
+
+			<div class="flex flex-wrap gap-3 mt-10">
+				<a th:href="@{/place}" style="min-width:120px; background:#9ca3af; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; text-decoration:none;">戻る</a>
+
+				<!-- 登録: 新規登録のみ活性化 -->
+				<button th:if="${purchaseOrder.id == null}" type="submit"
+						style="min-width:120px; background:#dc2626; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;">登録</button>
+
+				<!-- 削除: 未発注のみ活性化 -->
+				<button th:if="${purchaseOrder.id != null and purchaseOrder.status == 0}"
+						type="submit" form="deleteForm" onclick="return confirm('削除してもよろしいですか？');"
+						style="min-width:120px; background:#374151; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;">削除</button>
+
+				<!-- 発注する: 未発注のみ活性化 -->
+				<button th:if="${purchaseOrder.id != null and purchaseOrder.status == 0}"
+						type="submit" form="orderForm"
+						style="min-width:120px; background:#ea580c; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;">発注する</button>
+
+				<!-- 発注解除: 発注済のみ活性化 -->
+				<button th:if="${purchaseOrder.id != null and purchaseOrder.status == 1}"
+						type="submit" form="cancelForm"
+						style="min-width:120px; background:#65a30d; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;">発注解除</button>
+
+				<!-- 仕入する: 発注済のみ活性化 -->
+				<button th:if="${purchaseOrder.id != null and purchaseOrder.status == 1}"
+						type="submit" form="purchaseForm"
+						style="min-width:120px; background:#4d7c0f; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;">仕入する</button>
 			</div>
 		</form>
-		<form id="delete" action="" method="post"></form><!--/* Memo 削除用 */-->
-		<form id="submitOrder" action="" method="post"></form><!--/* Memo 発注する/発注解除 */-->
-		<form id="stockUp" action="" method="post"></form><!--/* Memo 仕入 */-->
+
+		<form th:if="${purchaseOrder.id != null}" id="deleteForm" th:action="@{/place/delete/{id}(id=${purchaseOrder.id})}" method="post"></form>
+		<form th:if="${purchaseOrder.id != null}" id="orderForm" th:action="@{/place/order/{id}(id=${purchaseOrder.id})}" method="post"></form>
+		<form th:if="${purchaseOrder.id != null}" id="cancelForm" th:action="@{/place/cancel/{id}(id=${purchaseOrder.id})}" method="post"></form>
+		<form th:if="${purchaseOrder.id != null}" id="purchaseForm" th:action="@{/place/purchase/{id}(id=${purchaseOrder.id})}" method="post"></form>
 	</div>
 </main>
-<script></script>
+<script>
+	const productSelect = document.getElementById('productId');
+	const quantityInput = document.getElementById('quantity');
+	const unitPriceDisplay = document.getElementById('unitPriceDisplay');
+	const stockDisplay = document.getElementById('stockDisplay');
+	const amountDisplay = document.getElementById('amountDisplay');
+	const taxFlag0 = document.getElementById('taxFlag0');
+	const taxFlag1 = document.getElementById('taxFlag1');
+	const paymentAmountInput = document.querySelector('input[name="paymentAmount"]');
+
+	function recalculate() {
+		let unitPrice = 0;
+		if (productSelect.value) {
+			const selected = productSelect.options[productSelect.selectedIndex];
+			unitPrice = parseInt(selected.getAttribute('data-price')) || 0;
+			unitPriceDisplay.value = unitPrice;
+			stockDisplay.value = selected.getAttribute('data-stock') || 0;
+		} else {
+			unitPriceDisplay.value = '';
+			stockDisplay.value = '';
+		}
+
+		const quantity = parseInt(quantityInput.value) || 0;
+		const amount = unitPrice * quantity;
+		amountDisplay.value = amount;
+
+		const taxFlag = taxFlag1.checked ? 1 : 0;
+		const paymentAmount = taxFlag === 1 ? Math.round(amount * 1.10) : amount;
+		paymentAmountInput.value = paymentAmount;
+	}
+
+	productSelect.addEventListener('change', recalculate);
+	quantityInput.addEventListener('input', recalculate);
+	taxFlag0.addEventListener('change', recalculate);
+	taxFlag1.addEventListener('change', recalculate);
+
+	recalculate();
+</script>
 </html>

@@ -45,6 +45,19 @@ public class OrderController {
         
         log.debug("受注一覧表示");
         
+        // 受注日範囲の逆順チェック
+        if (orderDateFrom != null && orderDateTo != null && orderDateFrom.isAfter(orderDateTo)) {
+            model.addAttribute("error", "受注日の範囲が正しくありません。開始日は終了日以前を指定してください。");
+            model.addAttribute("orders", orderService.findAllOrders(pageable));
+            model.addAttribute("companies", companyService.findAll());
+            model.addAttribute("products", productService.findAll());
+            model.addAttribute("companyId", companyId);
+            model.addAttribute("productId", productId);
+            model.addAttribute("orderDateFrom", orderDateFrom);
+            model.addAttribute("orderDateTo", orderDateTo);
+            return "receive/index";
+        }
+        
         Page<Order> orders;
         if (companyId != null || productId != null || orderDateFrom != null || orderDateTo != null) {
             orders = orderService.searchOrders(companyId, productId, orderDateFrom, orderDateTo, pageable);

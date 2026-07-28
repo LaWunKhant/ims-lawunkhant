@@ -2,9 +2,13 @@
 <main class="w-full flex flex-col flex-grow p-6">
 	<div class="w-1/2 mt-2 my-6">
 		<h2 class="text-xl pb-3 flex items-center"><i class="fas fa-list mr-3"></i>受注依頼登録変更</h2>
+		
 		<form th:action="@{/receive/entry}" method="post" th:object="${order}" class="p-10 bg-white rounded shadow-xl">
 			<input type="hidden" th:field="*{id}">
-
+			
+			<div th:if="${#fields.hasGlobalErrors()}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+				<p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+			</div>
 			<!-- Company Selection -->
 			<div class="mt-4">
 				<label for="companyId" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">取引先<span class="text-red-600">*</span></label>

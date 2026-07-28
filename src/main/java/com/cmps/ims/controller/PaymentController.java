@@ -68,6 +68,19 @@ public class PaymentController {
 		if (status != null && status.trim().isEmpty()) {
 			status = null;
 		}
+		
+		// 入金日範囲の逆順チェック
+	    if (fromDate != null && toDate != null && fromDate.isAfter(toDate)) {
+	        model.addAttribute("error", "入金日の範囲が正しくありません。開始日は終了日以前を指定してください。");
+	        model.addAttribute("payments", paymentService.searchPayments(null, null, null, null, null, pageable));
+	        model.addAttribute("companies", companyService.findAll());
+	        model.addAttribute("companyId", companyId);
+	        model.addAttribute("paymentDateFrom", paymentDateFrom);
+	        model.addAttribute("paymentDateTo", paymentDateTo);
+	        model.addAttribute("paymentType", paymentType);
+	        model.addAttribute("status", status);
+	        return "payment/index";
+	    }
 
 		Page<Payment> payments = paymentService.searchPayments(companyId, fromDate, toDate, paymentType, status, pageable);
 

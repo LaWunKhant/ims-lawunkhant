@@ -28,7 +28,11 @@
 			</div>
 			<div class="w-1/3 pr-2">
 				<label for="upload" class="ml-3 text-sm font-bold text-gray-700 tracking-wide">CSV取込</label>
-				<input type="file" name="upload" id="upload" form="fileupload" class="w-full content-center text-base px-4 pt-1.5 pb-1.5 bg-white border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
+				<div class="w-full flex items-center border-b rounded-2xl border-gray-300 bg-white px-4 py-2">
+					<label for="upload" class="flex-shrink-0 cursor-pointer bg-gradient-to-r from-gray-500 to-gray-600 hover:bg-gradient-to-l hover:from-gray-500 hover:to-gray-600 text-white text-sm font-semibold px-4 py-1.5 rounded-full shadow-md transition ease-in duration-300 mr-3">ファイルを選択</label>
+					<span id="uploadFileName" class="text-sm text-gray-500 truncate">選択されていません</span>
+				</div>
+				<input type="file" name="upload" id="upload" form="fileupload" class="hidden">
 			</div>
 			<div class="w-1/6 mt-auto">
 				<button type="submit" form="fileupload" style="width:100%; background:#dc2626; color:white; font-weight:bold; padding:8px 16px; border-radius:9999px; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; border:none;">アップロード</button>
@@ -120,5 +124,14 @@
 		</div>
 	</div>
 </main>
-<script></script>
+<script>
+	document.getElementById('upload').addEventListener('change', function() {
+		const fileNameSpan = document.getElementById('uploadFileName');
+		if (this.files && this.files.length > 0) {
+			fileNameSpan.textContent = this.files[0].name;
+		} else {
+			fileNameSpan.textContent = '選択されていません';
+		}
+	});
+</script>
 </html>

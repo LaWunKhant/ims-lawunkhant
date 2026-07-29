@@ -131,7 +131,7 @@ public class PurchaseOrderService {
      * 発注する：status→1、発注日をセット、発注先へメール送信
      * 未発注（status=0）のみ実行可能
      */
-    public PurchaseOrder placeOrder(Integer id) {
+    public PurchaseOrder placeOrder(Integer id, LocalDate orderDate) {
         log.info("発注実行: id={}", id);
 
         PurchaseOrder po = purchaseOrderRepository.findById(id)
@@ -141,8 +141,12 @@ public class PurchaseOrderService {
             throw new IllegalArgumentException("未発注の発注のみ発注できます");
         }
 
+        if (orderDate == null) {
+            throw new IllegalArgumentException("発注日を入力してください");
+        }
+
         po.setStatus(1);
-        po.setOrderDate(LocalDate.now());
+        po.setOrderDate(orderDate);
         po.setUpdateAt(LocalDateTime.now());
         PurchaseOrder saved = purchaseOrderRepository.save(po);
 
@@ -158,7 +162,6 @@ public class PurchaseOrderService {
         log.info("発注完了: id={}, orderDate={}", id, po.getOrderDate());
         return saved;
     }
-
     /**
      * 発注解除：status→0、発注日をクリア
      * 発注済（status=1）のみ実行可能
@@ -184,7 +187,7 @@ public class PurchaseOrderService {
      * 仕入する：status→2、仕入日をセット、商品在庫を増加
      * 発注済（status=1）のみ実行可能
      */
-    public PurchaseOrder purchaseIn(Integer id) {
+    public PurchaseOrder purchaseIn(Integer id, LocalDate purchaseDate) {
         log.info("仕入実行: id={}", id);
 
         PurchaseOrder po = purchaseOrderRepository.findById(id)
@@ -194,6 +197,10 @@ public class PurchaseOrderService {
             throw new IllegalArgumentException("発注済の発注のみ仕入できます");
         }
 
+        if (purchaseDate == null) {
+            throw new IllegalArgumentException("仕入日を入力してください");
+        }
+
         Product product = productRepository.findById(po.getProductId())
             .orElseThrow(() -> new IllegalArgumentException("商品が見つかりません: id=" + po.getProductId()));
 
@@ -201,7 +208,7 @@ public class PurchaseOrderService {
         productRepository.save(product);
 
         po.setStatus(2);
-        po.setPurchaseDate(LocalDate.now());
+        po.setPurchaseDate(purchaseDate);
         po.setUpdateAt(LocalDateTime.now());
 
         log.info("仕入完了: id={}, purchaseDate={}, 在庫増加後={}", id, po.getPurchaseDate(), product.getStock());

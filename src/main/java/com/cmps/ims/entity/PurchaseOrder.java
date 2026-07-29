@@ -50,6 +50,9 @@ public class PurchaseOrder {
     @PositiveOrZero(message = "支払金額は0以上である必要があります")
     @Column(name = "payment_amount", nullable = false)
     private Integer paymentAmount;
+    
+    @Column(name = "order_date")
+    private LocalDate orderDate;
 
     /**
      * 発注状態: 0=未発注, 1=発注済, 2=仕入済
@@ -57,8 +60,6 @@ public class PurchaseOrder {
     @Column(name = "status")
     private Integer status = 0;
 
-    @Column(name = "order_date")
-    private LocalDate orderDate;
 
     @Column(name = "purchase_date")
     private LocalDate purchaseDate;

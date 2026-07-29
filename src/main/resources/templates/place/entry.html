@@ -95,17 +95,28 @@
 				<input type="text" th:field="*{paymentAmount}" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300" readonly>
 			</div>
 
+	
+			<!-- 発注日: Explicitly linked to orderForm -->
 			<div class="mt-2">
-				<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">発注日</label>
-				<input type="text" th:value="${purchaseOrder.orderDate != null} ? ${#temporals.format(purchaseOrder.orderDate, 'yyyy/MM/dd')} : '-'" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300" disabled>
+			    <label for="orderDate" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">発注日<span class="text-red-600">*</span></label>
+			    <input type="date" name="orderDate" id="orderDate" form="orderForm"
+			           th:value="${purchaseOrder.orderDate != null} ? ${#temporals.format(purchaseOrder.orderDate, 'yyyy-MM-dd')} : ''"
+			           th:disabled="${purchaseOrder.id != null and purchaseOrder.status != 0}"
+			           class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500"
+			           th:classappend="${#fields.hasErrors('orderDate')} ? 'border-red-500' : ''">
+			    <p th:if="${#fields.hasErrors('orderDate')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{orderDate}"></p>
+			</div>
+			
+			<!-- 仕入日: Kept linked to purchaseForm -->
+			<div class="mt-2" th:if="${purchaseOrder.id != null and purchaseOrder.status != 0}">
+			    <label for="purchaseDate" class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">仕入日</label>
+			    <input type="date" name="purchaseDate" id="purchaseDate" form="purchaseForm"
+			           th:value="${purchaseOrder.purchaseDate != null} ? ${#temporals.format(purchaseOrder.purchaseDate, 'yyyy-MM-dd')} : ''"
+			           th:disabled="${purchaseOrder.status != 1}"
+			           class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500">
 			</div>
 
-			<div class="mt-2">
-				<label class="block ml-3 text-sm font-bold text-gray-700 tracking-wide">仕入日</label>
-				<input type="text" th:value="${purchaseOrder.purchaseDate != null} ? ${#temporals.format(purchaseOrder.purchaseDate, 'yyyy/MM/dd')} : '-'" class="w-1/3 content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300" disabled>
-			</div>
-
-			<div class="flex flex-wrap gap-3 mt-10">
+			<div class="flex flex-wrap 	あgap-3 mt-10">
 				<a th:href="@{/place}" style="min-width:120px; background:#9ca3af; color:white; font-weight:bold; padding:12px 24px; border-radius:9999px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; text-decoration:none;">戻る</a>
 
 				<!-- 登録: 新規登録のみ活性化 -->

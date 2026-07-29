@@ -162,18 +162,17 @@ public class PurchaseOrderController {
      * POST /place/order/{id}
      */
     @PostMapping("/order/{id}")
-    public String placeOrder(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+    public String placeOrder(@PathVariable Integer id,
+            @RequestParam(value = "orderDate", required = false) String orderDate,
+            RedirectAttributes redirectAttributes) {
         log.debug("発注実行: id={}", id);
-
         try {
-            purchaseOrderService.placeOrder(id);
-            log.info("発注完了: id={}", id);
+            LocalDate parsedDate = (orderDate != null && !orderDate.isEmpty()) ? LocalDate.parse(orderDate) : null;
+            purchaseOrderService.placeOrder(id, parsedDate);
             redirectAttributes.addFlashAttribute("message", "発注しました");
         } catch (IllegalArgumentException e) {
-            log.warn("発注エラー: {}", e.getMessage());
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-
         return "redirect:/place/entry/" + id;
     }
 
@@ -202,18 +201,17 @@ public class PurchaseOrderController {
      * POST /place/purchase/{id}
      */
     @PostMapping("/purchase/{id}")
-    public String purchaseIn(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+    public String purchaseIn(@PathVariable Integer id,
+            @RequestParam(value = "purchaseDate", required = false) String purchaseDate,
+            RedirectAttributes redirectAttributes) {
         log.debug("仕入実行: id={}", id);
-
         try {
-            purchaseOrderService.purchaseIn(id);
-            log.info("仕入完了: id={}", id);
+            LocalDate parsedDate = (purchaseDate != null && !purchaseDate.isEmpty()) ? LocalDate.parse(purchaseDate) : null;
+            purchaseOrderService.purchaseIn(id, parsedDate);
             redirectAttributes.addFlashAttribute("message", "仕入しました");
         } catch (IllegalArgumentException e) {
-            log.warn("仕入エラー: {}", e.getMessage());
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-
         return "redirect:/place/entry/" + id;
     }
 }

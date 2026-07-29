@@ -58,23 +58,22 @@ public class MailService {
     public void sendPurchaseOrderNotification(String toEmail, String companyName, String productName,
             Integer quantity, Integer paymentAmount) {
 
-        SpringTemplateEngine engine = new SpringTemplateEngine();
-        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-        templateResolver.setCharacterEncoding("UTF-8");
-        engine.setTemplateResolver(templateResolver);
-
-        Map<String, Object> datas = new HashMap<>();
-        datas.put("companyName", companyName);
-        datas.put("productName", productName);
-        datas.put("quantity", quantity);
-        datas.put("paymentAmount", paymentAmount);
-
-        Context context = new Context();
-        context.setVariables(datas);
-
-        String htmlBody = engine.process("/templates/mail/purchase.html", context);
-
         try {
+            SpringTemplateEngine engine = new SpringTemplateEngine();
+            ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+            templateResolver.setCharacterEncoding("UTF-8");
+            engine.setTemplateResolver(templateResolver);
+
+            Map<String, Object> datas = new HashMap<>();
+            datas.put("companyName", companyName);
+            datas.put("productName", productName);
+            datas.put("quantity", quantity);
+            datas.put("paymentAmount", paymentAmount);
+
+            Context context = new Context();
+            context.setVariables(datas);
+            String htmlBody = engine.process("/templates/mail/purchase.html", context);
+
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
             helper.setTo(toEmail);

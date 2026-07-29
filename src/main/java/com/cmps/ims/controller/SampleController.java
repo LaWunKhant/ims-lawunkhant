@@ -7,29 +7,24 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class SampleController {
 
-    /**
-     * ログインページ
-     */
-    @GetMapping("")
-    public String loginIndex() {
-        return "login/index";
-    }
+	@GetMapping("/login")
+	public String loginIndex() {
 
-    /**
-     * TOPページ(MENU)
-     * 
-     */
-    @GetMapping("/top")
-    public String topIndex() {
-    	return "top/index";
-    }
-    
-    @PostMapping("/top")
-    public String topPost() {
-        return "top/index";
-    }
-    
-    
-   
-    
+		return "login/index";
+	}
+
+	/**
+	 * TOPページ(MENU)
+	 * 
+	 * @return
+	 */
+	@GetMapping("/top")
+	public String topIndex() {
+		return "top/index";
+	}
+	
+	@PostMapping("/top")
+	public String topPost() {
+		return "top/index";
+	}
 }

@@ -5,7 +5,6 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,7 +24,7 @@ public class User {
     private String userId;
 
     @Column(name = "password", length = 255, nullable = false)
-    @NotBlank(message = "パスワードは必須です")
+    @NotBlank(message = "パスワードは必須です", groups = ValidationGroups.OnCreate.class)
     private String password;
 
     @Column(name = "name", length = 100, nullable = false)
@@ -73,17 +72,11 @@ public class User {
     @Column(name = "update_member_id")
     private Integer updateMemberId;
 
-    /**
-     * 権限ラベルを取得
-     */
     public String getRoleLabel() {
         if (role == null) return "";
         return role == 1 ? "管理者" : "一般";
     }
 
-    /**
-     * 状態ラベルを取得
-     */
     public String getStatusLabel() {
         if (status == null) return "";
         return status == 1 ? "使用可能" : "使用不可";

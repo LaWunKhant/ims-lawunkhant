@@ -20,14 +20,13 @@
 
 			<!-- パスワード：新規登録時のみ入力可能 -->
 			<div class="mt-2" th:if="${user.id == null}">
-				<label for="password" class="mt-2 ml-3 text-sm font-bold text-gray-700 tracking-wide">パスワード</label>
-				<input type="password" th:field="*{password}" tabindex="1" placeholder="パスワードをご入力ください" id="password"
-					   class="w-full content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500"
-					   th:classappend="${#fields.hasErrors('password')} ? 'border-red-500' : ''">
-				<p th:if="${#fields.hasErrors('password')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{password}"></p>
+			    <label for="password" class="mt-2 ml-3 text-sm font-bold text-gray-700 tracking-wide">パスワード</label>
+			    <input type="password" th:field="*{password}" tabindex="1" placeholder="パスワードをご入力ください" id="password"
+			           class="w-full content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500"
+			           th:classappend="${#fields.hasErrors('password')} ? 'border-red-500' : ''">
+			    <p th:if="${#fields.hasErrors('password')}" class="text-red-600 text-sm mt-1 ml-3" th:errors="*{password}"></p>
 			</div>
-			<!-- 編集時：既存のハッシュ値をそのまま保持（画面には表示しない） -->
-			<input type="hidden" th:if="${user.id != null}" th:field="*{password}">
+			<!-- 編集時：パスワードは送信しない。既存のパスワードを保持する -->
 
 			<div class="mt-2">
 				<label for="name" class="ml-3 text-sm font-bold text-gray-700 tracking-wide">氏名</label>

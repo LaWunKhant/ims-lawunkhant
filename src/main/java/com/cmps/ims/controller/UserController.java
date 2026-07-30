@@ -1,8 +1,10 @@
 package com.cmps.ims.controller;
 
 import com.cmps.ims.entity.User;
+import com.cmps.ims.entity.ValidationGroups;
 import com.cmps.ims.service.UserService;
-import jakarta.validation.Valid;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/user")
@@ -24,11 +27,8 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final Validator validator;
 
-    /**
-     * ユーザー一覧ページ（検索付き）
-     * GET /user → user/index.html
-     */
     @GetMapping
     public String index(
             @RequestParam(value = "userid", required = false) String userId,
@@ -51,10 +51,6 @@ public class UserController {
         return "user/index";
     }
 
-    /**
-     * ユーザー新規登録フォーム
-     * GET /user/entry → user/entry.html
-     */
     @GetMapping("/entry")
     public String entryNew(Model model) {
         log.debug("ユーザー新規登録フォーム表示");
@@ -62,10 +58,6 @@ public class UserController {
         return "user/entry";
     }
 
-    /**
-     * ユーザー編集フォーム
-     * GET /user/entry/{id} → user/entry.html
-     */
     @GetMapping("/entry/{id}")
     public String entryEdit(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
         log.debug("ユーザー編集フォーム表示: id={}", id);
@@ -80,17 +72,26 @@ public class UserController {
         return "user/entry";
     }
 
-    /**
-     * ユーザーを保存（新規登録 or 更新）
-     * POST /user/entry
-     */
     @PostMapping("/entry")
-    public String entrySave(@Valid @ModelAttribute("user") User user,
+    public String entrySave(@ModelAttribute("user") User user,
                              BindingResult bindingResult,
                              Model model,
                              RedirectAttributes redirectAttributes) {
 
         log.debug("ユーザー保存処理: id={}, userId={}", user.getId(), user.getUserId());
+
+        Class<?> validationGroup = (user.getId() == null)
+                ? ValidationGroups.OnCreate.class
+                : ValidationGroups.OnUpdate.class;
+
+        Set<ConstraintViolation<User>> violations = validator.validate(user, validationGroup);
+        for (ConstraintViolation<User> violation : violations) {
+            bindingResult.rejectValue(
+                    violation.getPropertyPath().toString(),
+                    "error",
+                    violation.getMessage()
+            );
+        }
 
         if (bindingResult.hasErrors()) {
             log.warn("バリデーションエラー: {}", bindingResult.getAllErrors());
@@ -115,10 +116,6 @@ public class UserController {
         }
     }
 
-    /**
-     * ユーザーを削除
-     * POST /user/delete/{id}
-     */
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         log.debug("ユーザー削除実行: id={}", id);

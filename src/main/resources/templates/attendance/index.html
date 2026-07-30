@@ -37,17 +37,38 @@
 				</tr>
 			</thead>
 			<tbody class="text-gray-700">
-				<tr th:if="${#lists.isEmpty(attendanceList)}">
-					<td class="border text-center py-3 px-4" colspan="4">表示するデータがありません</td>
-				</tr>
-				<tr th:each="attendance : ${attendanceList}">
-					<td class="border text-center py-3 px-4" th:text="${#temporals.format(attendance.clockIn, 'yyyy/M/d HH:mm')}"></td>
-					<td class="border text-center py-3 px-4" th:text="${attendance.clockOut != null} ? ${#temporals.format(attendance.clockOut, 'yyyy/M/d HH:mm')} : '-'"></td>
-					<td class="border text-center py-3 px-4" th:text="${attendance.workingHours != null} ? ${attendance.workingHours} + 'h' : '-'"></td>
-					<td class="border text-center py-3 px-4" th:text="${attendance.overtimeHours != null} ? ${attendance.overtimeHours} + 'h' : '-'"></td>
-				</tr>
+			    <tr th:if="${attendancePage.empty}">
+			        <td class="border text-center py-3 px-4" colspan="4">表示するデータがありません</td>
+			    </tr>
+			    <tr th:each="attendance : ${attendancePage.content}">
+			        <td class="border text-center py-3 px-4" th:text="${#temporals.format(attendance.clockIn, 'yyyy/M/d HH:mm')}"></td>
+			        <td class="border text-center py-3 px-4" th:text="${attendance.clockOut != null} ? ${#temporals.format(attendance.clockOut, 'yyyy/M/d HH:mm')} : '-'"></td>
+			        <td class="border text-center py-3 px-4" th:text="${attendance.workingHours != null} ? ${attendance.workingHours} + 'h' : '-'"></td>
+			        <td class="border text-center py-3 px-4" th:text="${attendance.overtimeHours != null} ? ${attendance.overtimeHours} + 'h' : '-'"></td>
+			    </tr>
 			</tbody>
 		</table>
+		<div class="flex justify-center mt-6" th:if="${attendancePage.totalPages > 1}">
+		    <ul class="inline-flex space-x-2 m-auto">
+		        <li th:if="${attendancePage.hasPrevious()}">
+		            <a th:href="@{/attendance(page=${attendancePage.number - 1})}"
+		               class="flex items-center justify-center w-10 h-10 text-indigo-600 transition-colors duration-150 rounded-full hover:bg-indigo-100">
+		                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+		            </a>
+		        </li>
+		        <li th:each="i : ${#numbers.sequence(0, attendancePage.totalPages - 1)}">
+		            <a th:href="@{/attendance(page=${i})}" th:text="${i + 1}"
+		               th:classappend="${i == attendancePage.number} ? 'text-white bg-indigo-600 border border-indigo-600' : 'text-indigo-600 hover:bg-indigo-100'"
+		               class="flex items-center justify-center w-10 h-10 transition-colors duration-150 rounded-full"></a>
+		        </li>
+		        <li th:if="${attendancePage.hasNext()}">
+		            <a th:href="@{/attendance(page=${attendancePage.number + 1})}"
+		               class="flex items-center justify-center w-10 h-10 text-indigo-600 transition-colors duration-150 rounded-full hover:bg-indigo-100">
+		                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+		            </a>
+		        </li>
+		    </ul>
+		</div>
 	</div>
 
 </main>

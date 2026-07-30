@@ -5,6 +5,8 @@ import com.cmps.ims.entity.User;
 import com.cmps.ims.repository.AttendanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -20,8 +22,8 @@ public class AttendanceService {
     @Autowired
     private AttendanceRepository attendanceRepository;
 
-    public List<Attendance> getHistoryForUser(Integer userId) {
-        return attendanceRepository.findByUser_IdOrderByClockInDesc(userId);
+    public Page<Attendance> getHistoryForUser(Integer userId, Pageable pageable) {
+        return attendanceRepository.findByUser_Id(userId, pageable);
     }
 
     public boolean isClockedIn(Integer userId) {

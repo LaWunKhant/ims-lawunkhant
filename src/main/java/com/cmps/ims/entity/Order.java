@@ -111,6 +111,9 @@ public class Order {
     @JoinColumn(name = "product_id", insertable = false, updatable = false)
     private Product product;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_member_id", insertable = false, updatable = false)
+    private User createdMember;
     /**
      * 金額を自動計算: 単価 × 数量
      */

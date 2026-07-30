@@ -31,6 +31,13 @@ public class AttendanceService {
                 .findFirstByUser_IdAndClockOutIsNullOrderByClockInDesc(userId)
                 .isPresent();
     }
+    
+    public boolean isOvertimeExceeded(Integer userId) {
+        return attendanceRepository
+                .findFirstByUser_IdAndClockOutIsNullOrderByClockInDesc(userId)
+                .map(a -> Duration.between(a.getClockIn(), LocalDateTime.now()).toHours() >= 12)
+                .orElse(false);
+    }
 
     public void clockIn(User user) {
         if (isClockedIn(user.getId())) {

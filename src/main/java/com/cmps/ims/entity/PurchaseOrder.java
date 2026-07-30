@@ -5,6 +5,11 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +18,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "purchase_orders", indexes = {
     @Index(name = "idx_po_company_id", columnList = "company_id"),
     @Index(name = "idx_po_product_id", columnList = "product_id")
@@ -50,7 +56,7 @@ public class PurchaseOrder {
     @PositiveOrZero(message = "支払金額は0以上である必要があります")
     @Column(name = "payment_amount", nullable = false)
     private Integer paymentAmount;
-    
+
     @Column(name = "order_date")
     private LocalDate orderDate;
 
@@ -60,19 +66,22 @@ public class PurchaseOrder {
     @Column(name = "status")
     private Integer status = 0;
 
-
     @Column(name = "purchase_date")
     private LocalDate purchaseDate;
 
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     @Column(name = "update_at")
     private LocalDateTime updateAt;
 
+    @CreatedBy
     @Column(name = "created_member_id")
     private Integer createdMemberId;
 
+    @LastModifiedBy
     @Column(name = "update_member_id")
     private Integer updateMemberId;
 
@@ -83,6 +92,10 @@ public class PurchaseOrder {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", insertable = false, updatable = false)
     private Product product;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_member_id", insertable = false, updatable = false)
+    private User createdMember;
 
     /**
      * 支払金額を自動計算: 単価(商品マスタ) × 数量 + 税

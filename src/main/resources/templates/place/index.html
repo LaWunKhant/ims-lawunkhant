@@ -92,7 +92,7 @@
 						<td class="border text-right py-3 px-4" th:text="${#numbers.formatInteger(po.paymentAmount, 1, 'COMMA')}"></td>
 						<td class="border text-center py-3 px-4" th:text="${po.orderDate != null} ? ${#temporals.format(po.orderDate, 'yyyy/MM/dd')} : '-'"></td>
 						<td class="border text-center py-3 px-4" th:text="${po.purchaseDate != null} ? ${#temporals.format(po.purchaseDate, 'yyyy/MM/dd')} : '-'"></td>
-						<td class="border text-center py-3 px-4" th:text="${po.createdMemberId != null} ? ${po.createdMemberId} : '-'"></td>
+						<td class="border text-center py-3 px-4" th:text="${po.createdMember != null} ? ${po.createdMember.name} : '-'"></td>
 					</tr>
 				</tbody>
 			</table>

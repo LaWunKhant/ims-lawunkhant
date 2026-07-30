@@ -80,6 +80,10 @@ public class Payment {
     @JoinColumn(name = "order_id", insertable = false, updatable = false)
     private Order order;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_member_id", insertable = false, updatable = false)
+    private User createdMember;
+    
     /**
      * Get payment type label
      */

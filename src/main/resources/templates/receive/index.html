@@ -85,7 +85,7 @@
 						<td class="border text-left py-3 px-4" th:text="${order.company?.companyName}"></td>
 						<td class="border text-right py-3 px-4" th:text="${#numbers.formatInteger(order.billingAmount, 1, 'COMMA')}"></td>
 						<td class="border text-center py-3 px-4" th:text="${order.paymentDueDate != null} ? ${#temporals.format(order.paymentDueDate, 'yyyy/MM/dd')} : '-'"></td>
-						<td class="border text-left py-3 px-4" th:text="${order.createdMemberId != null} ? ${order.createdMemberId} : '-'"></td>
+						<td class="border text-left py-3 px-4" th:text="${order.createdMember != null} ? ${order.createdMember.name} : '-'"></td>
 					</tr>
 				</tbody>
 			</table>

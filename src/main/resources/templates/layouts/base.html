@@ -2,6 +2,7 @@
 <html th:fragment="layout (title, contents, script)" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{include/head :: head(${title})}"></head>
 <body>
+<th:block th:replace="~{include/toast :: toast}"></th:block>
 <!--/** contents **/-->
 <div class="l-wrapper bg-gray-100 flex">
   <aside class="l-side relative bg-purple-900 bg-sidebar w-64 shadow-xl">

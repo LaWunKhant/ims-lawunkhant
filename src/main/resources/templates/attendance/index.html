@@ -5,24 +5,28 @@
 	<div th:if="${errorMessage}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 u-widthMin" th:text="${errorMessage}"></div>
 
 	<div class="w-full mt-10">
-		<div class="flex flex-wrap justify-center">
-			<div class="w-2/5 p-10">
-				<form th:action="@{/attendance/clock-in}" method="post">
-					<button type="submit" name="timeIn" tabindex="1" th:disabled="${clockedIn}"
-							class="w-full flex p-7 justify-center bg-gradient-to-r from-red-500 to-red-600 hover:bg-gradient-to-l hover:from-red-500 hover:to-red-600 disabled:opacity-40 disabled:cursor-not-allowed text-gray-100 p-2 rounded-full tracking-wide text-xl font-semibold shadow-lg cursor-pointer transition ease-in duration-500">
-						<i class="fa-solid fa-right-to-bracket leading-none text-3xl mr-3"></i>出勤ボタン
-					</button>
-				</form>
-			</div>
-			<div class="w-2/5 p-10">
-				<form th:action="@{/attendance/clock-out}" method="post">
-					<button type="submit" name="timeOut" tabindex="1" th:disabled="${!clockedIn}"
-							class="w-full flex p-7 justify-center bg-gradient-to-r from-indigo-500 to-blue-600 hover:bg-gradient-to-l hover:from-blue-500 hover:to-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed text-gray-100 p-2 rounded-full tracking-wide text-xl font-semibold shadow-lg cursor-pointer transition ease-in duration-500">
-						<i class="fa-solid fa-right-from-bracket leading-none text-3xl mr-3"></i>退勤ボタン
-					</button>
-				</form>
-			</div>
-		</div>
+	    <div class="flex flex-wrap justify-center">
+	        <div class="w-2/5 p-10">
+	            <form th:action="@{/attendance/clock-in}" method="post">
+	                <button type="submit" name="timeIn" tabindex="1" th:disabled="${clockedIn}"
+	                        th:class="${clockedIn} 
+	                            ? 'w-full flex p-7 justify-center bg-gray-300 text-gray-500 p-2 rounded-full tracking-wide text-xl font-semibold cursor-not-allowed'
+	                            : 'w-full flex p-7 justify-center bg-gradient-to-r from-red-500 to-red-600 hover:bg-gradient-to-l hover:from-red-500 hover:to-red-600 text-gray-100 p-2 rounded-full tracking-wide text-xl font-semibold shadow-lg cursor-pointer transition ease-in duration-500'">
+	                    <i class="fa-solid fa-right-to-bracket leading-none text-3xl mr-3"></i>出勤ボタン
+	                </button>
+	            </form>
+	        </div>
+	        <div class="w-2/5 p-10">
+	            <form th:action="@{/attendance/clock-out}" method="post">
+	                <button type="submit" name="timeOut" tabindex="1" th:disabled="${!clockedIn}"
+	                        th:class="${!clockedIn} 
+	                            ? 'w-full flex p-7 justify-center bg-gray-300 text-gray-500 p-2 rounded-full tracking-wide text-xl font-semibold cursor-not-allowed'
+	                            : 'w-full flex p-7 justify-center bg-gradient-to-r from-indigo-500 to-blue-600 hover:bg-gradient-to-l hover:from-blue-500 hover:to-indigo-600 text-gray-100 p-2 rounded-full tracking-wide text-xl font-semibold shadow-lg cursor-pointer transition ease-in duration-500'">
+	                    <i class="fa-solid fa-right-from-bracket leading-none text-3xl mr-3"></i>退勤ボタン
+	                </button>
+	            </form>
+	        </div>
+	    </div>
 	</div>
 
 	<h2 class="text-xl pb-3 flex items-center mt-5"><i class="fas fa-list mr-3"></i>勤怠一覧</h2>

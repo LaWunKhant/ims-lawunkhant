@@ -46,6 +46,13 @@ public class PurchaseOrderController {
 
         log.debug("発注一覧表示");
 
+        String dateError = null;
+        if (orderPlannedDateFrom != null && orderPlannedDateTo != null && orderPlannedDateFrom.isAfter(orderPlannedDateTo)) {
+            dateError = "発注予定日の範囲が正しくありません。開始日は終了日以前を指定してください。";
+            orderPlannedDateFrom = null;
+            orderPlannedDateTo = null;
+        }
+
         Page<PurchaseOrder> orders;
         if (productId != null || companyId != null || status != null || orderPlannedDateFrom != null || orderPlannedDateTo != null) {
             orders = purchaseOrderService.searchPurchaseOrders(productId, companyId, status, orderPlannedDateFrom, orderPlannedDateTo, pageable);
@@ -61,10 +68,10 @@ public class PurchaseOrderController {
         model.addAttribute("status", status);
         model.addAttribute("orderPlannedDateFrom", orderPlannedDateFrom);
         model.addAttribute("orderPlannedDateTo", orderPlannedDateTo);
+        model.addAttribute("dateError", dateError);
 
         return "place/index";
     }
-
     /**
      * 発注新規登録フォーム
      * GET /place/entry → place/entry.html

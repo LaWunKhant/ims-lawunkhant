@@ -42,6 +42,13 @@ public class ShippingController {
 
         log.debug("発送一覧表示");
 
+        String dateError = null;
+        if (orderDateFrom != null && orderDateTo != null && orderDateFrom.isAfter(orderDateTo)) {
+            dateError = "受注日の開始日は終了日より前の日付を指定してください";
+            orderDateFrom = null;
+            orderDateTo = null;
+        }
+
         Page<Order> orders = orderService.searchShippableOrders(companyId, status, orderDateFrom, orderDateTo, pageable);
 
         model.addAttribute("orders", orders);
@@ -50,6 +57,7 @@ public class ShippingController {
         model.addAttribute("status", status);
         model.addAttribute("orderDateFrom", orderDateFrom);
         model.addAttribute("orderDateTo", orderDateTo);
+        model.addAttribute("dateError", dateError);
 
         return "send/index";
     }

@@ -1,5 +1,6 @@
 <html th:replace="~{layouts/base :: layout('発送管理', ~{::main}, ~{::script})}">
 <main class="w-full flex flex-col flex-grow p-6">
+	<div th:if="${dateError}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" th:text="${dateError}"></div>
 	<form th:action="@{/send}" method="get">
 		<div class="w-9/12 flex flex-wrap">
 			<div class="w-1/2 pr-2">
